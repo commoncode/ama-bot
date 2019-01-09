@@ -16,6 +16,9 @@
     "url": "https://github.com/commoncode/ama-bot/issues"
   },
   "homepage": "https://github.com/commoncode/ama-bot#readme",
+  "engines": {
+    "node": "10.13"
+  },
   "dependencies": {
     "body-parser": "^1.18.3",
     "botkit": "^0.7.0",
