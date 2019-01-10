@@ -44,3 +44,19 @@ be triggered to deploy any branch by a contributor at the bottom of the applicat
 
 The `staging` application also has a postgres database 'add on' which can be accessed by the `dyno` process using the 
 environment variable `DATABASE_URL`. It is currently using Postgres 10.6.
+
+## Database
+
+This project uses 
+
+- (postgresql)[https://www.postgresql.org/docs/10/app-psql.html]
+- (knex.js)[https://knexjs.org/] (js SQL query builder)
+- (objection.js)[http://vincit.github.io/objection.js/] (ORM)
+
+### Running Migrations
+
+To create a new migration, run `knex migration:make create_MYTABLE` from the root of the project. Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
+
+Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run. 
+
+As defined in the Heroku Procfile, all latest migrations should be run before each release. 
