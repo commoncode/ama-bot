@@ -44,3 +44,11 @@ be triggered to deploy any branch by a contributor at the bottom of the applicat
 
 The `staging` application also has a postgres database 'add on' which can be accessed by the `dyno` process using the 
 environment variable `DATABASE_URL`. It is currently using Postgres 10.6.
+
+## CircleCI
+
+CircleCI is setup to install application dependencies run tests and linting.
+It's setup through the Common Code organisation on Github and is configured in the 
+normal location:
+
+.circleci/config.yml
