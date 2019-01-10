@@ -18,7 +18,6 @@ module.exports = {
       "fetch": true
     },
     "env": {
-      "jasmine": true,
       "jest": true
     }
 };
