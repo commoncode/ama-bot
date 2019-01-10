@@ -92,28 +92,28 @@ class Point extends Model {
 
   static get relationMappings() {
     return {
-      message: {
+      messages: {
         relation: Model.BelongsToOneRelation,
         modelClass: Message,
         join: {
           from: 'points.message_id',
-          to: 'message.id'
+          to: 'messages.id'
         }
       },
-      skill: {
+      skills: {
         relation: Model.BelongsToOneRelation,
         modelClass: Skill,
         join: {
           from: 'points.skill_id',
-          to: 'skill.id'
+          to: 'skills.id'
         }
       },
-      person: {
+      people: {
         relation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
           from: 'points.person_id',
-          to: 'person.id'
+          to: 'people.id'
         }
       }
     };
