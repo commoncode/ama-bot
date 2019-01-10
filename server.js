@@ -9,9 +9,9 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true,
 }));
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log('Bot is listening on port ' + port);
 });
