@@ -49,9 +49,9 @@ environment variable `DATABASE_URL`. It is currently using Postgres 10.6.
 
 This project uses 
 
-- (postgresql)[https://www.postgresql.org/docs/10/app-psql.html]
-- (knex.js)[https://knexjs.org/] (js SQL query builder)
-- (objection.js)[http://vincit.github.io/objection.js/] (ORM)
+- [postgresql](https://www.postgresql.org/docs/10/app-psql.html)
+- [knex.j](https://knexjs.org/) (js SQL query builder)
+- [objection.js](http://vincit.github.io/objection.js/) (ORM)
 
 ### Running Migrations
 
