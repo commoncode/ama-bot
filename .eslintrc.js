@@ -3,7 +3,6 @@ module.exports = {
     "rules": {
       "comma-dangle": ["error", "always-multiline"],
       "semi": ["error", "always"],
-      "no-console": ["error", { allow: ["warn", "error"] }],
       "padded-blocks": "off",
       "no-multiple-empty-lines": "off"
     },
