@@ -1,6 +1,8 @@
 const dotenv = require('dotenv');
 const botkit = require('botkit');
 const server = require('./server');
+const userRegistration= require('./components/userRegistration');
+const onBoarding= require('./components/onBoarding');
 
 dotenv.load();
 
@@ -36,8 +38,9 @@ slackController.startTicking();
 // Set up express server.
 server(slackController);
 
-require(__dirname + '/components/userRegistration.js')(slackController);
-require(__dirname + '/components/onBoarding.js')(slackController);
+// Set up bot components.
+userRegistration(slackController);
+onBoarding(slackController);
 
 // Load in skills.
 const normalizedPath = require("path").join(__dirname, '/skills');
