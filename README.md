@@ -12,7 +12,6 @@ Install dependencies:
 
 ```bash
 npm install
-npm run dev
 ```
 
 Add `.env` file in the project root directory.
@@ -38,6 +37,8 @@ located at:
 https://cc-ama-bot-dev.herokuapp.com/
 
 This is the domain needed to be configured in the Event Subscription of the Slack App Configuration.
+Once Slack App configuration done, go to https://cc-ama-bot-dev.herokuapp.com/login and click Authorize button to
+install the App.
 
 This `staging` pipeline step automatically deploys the `develop` branch of the repo from github and can manually
 be triggered to deploy any branch by a contributor at the bottom of the applications deploy menu on Heroku.
