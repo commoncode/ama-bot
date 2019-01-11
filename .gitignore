@@ -1,6 +1,9 @@
 # dependencies
 /node_modules
 
+# local DB
+.db_bot
+
 # misc
 .DS_Store
 .env
