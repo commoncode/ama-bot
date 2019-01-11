@@ -2,9 +2,9 @@
   "name": "ama-bot",
   "version": "1.0.0",
   "description": "Backend server for Slack ama bot",
-  "main": "server.js",
+  "main": "bot.js",
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "nodemon bot.js",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."
   },
