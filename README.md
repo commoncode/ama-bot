@@ -60,3 +60,12 @@ To create a new migration, run `knex migration:make create_MYTABLE` from the roo
 Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run. 
 
 As defined in the Heroku Procfile, all latest migrations should be run before each release. 
+
+## CircleCI
+
+CircleCI is setup to install application dependencies run tests and linting.
+It's setup through the Common Code organisation on Github and is configured in the 
+normal location:
+
+.circleci/config.yml
+
