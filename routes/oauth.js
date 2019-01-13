@@ -5,7 +5,7 @@ const authRoutes = (webserver, slackController) => {
 
   webserver.get('/oauth', (req) => {
     const { code } = req.query;
-    const slackApi = slackController.spawn({})
+    const slackApi = slackController.spawn({});
     const opts = {
       client_id: slackController.config.clientId,
       client_secret: slackController.config.clientSecret,
@@ -16,7 +16,7 @@ const authRoutes = (webserver, slackController) => {
       if (error) {
         console.error('Error confirming oauth: ', error);
       } else {
-        slackApi.api.auth.test({token: auth.access_token}, (error, identity) => {
+        slackApi.api.auth.test({ token: auth.access_token }, (error, identity) => {
 
           if (error) {
             console.error('Error confirming oauth: ', error);
@@ -30,6 +30,6 @@ const authRoutes = (webserver, slackController) => {
       }
     });
   });
-}
+};
 
 module.exports = authRoutes;
