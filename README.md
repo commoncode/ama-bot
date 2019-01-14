@@ -72,13 +72,13 @@ Once verified, click "Add Bot User Event", and use the dropdown to search and se
 ### Add your bot to workspace
 
 This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, 
-go to http://ngrok-url/login, and click **Authorize** button, backend server will be connected to slack 
+go to http://ngrok-url/login, and click **Authorize** button, then server will be connected to slack 
 if there is no error message in console, this process authorizes the server and stores workspace information on server.
 
 Only need to run this process for first time set up or deploy this project, or if local storage is removed 
 (e.g. `.db_bot` on root directory is deleted).
 
-Create a channel for testing your bot, and invite your to the channel.
+Create a channel for testing your bot, and invite the bot to the channel.
 
 Type "@bot-name hello", it should reply "Hello world".
 
