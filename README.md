@@ -12,7 +12,6 @@ Install dependencies:
 
 ```bash
 npm install
-npm run dev
 ```
 
 Add `.env` file in the project root directory.
@@ -60,6 +59,15 @@ To create a new migration, run `knex migration:make create_MYTABLE` from the roo
 Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run. 
 
 As defined in the Heroku Procfile, all latest migrations should be run before each release. 
+
+## Botkit
+
+This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, 
+go to http://server-domain/login, and click **Authorize** button, backend server will be connected to slack 
+if there is no error message in console, this process authorizes the server and stores workspace information on server.
+
+Only need to run this process for first time set up or deploy this project, or if local storage is removed 
+(e.g. `.db_bot` on root directry is deleted).
 
 ## CircleCI
 
