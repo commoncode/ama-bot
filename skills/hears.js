@@ -7,7 +7,7 @@ const hears = slackController => {
     ['direct_message', 'direct_mention', 'app_mention'],
     (bot, message) => {
       bot.reply(message, 'Hello world');
-    },
+    }
   );
   slackController.hears(
     '',
@@ -16,7 +16,7 @@ const hears = slackController => {
       if (message.text.includes(['_'])) {
         const skill = message.text.substring(
           message.text.indexOf('_') + 1,
-          message.text.lastIndexOf('_'),
+          message.text.lastIndexOf('_')
         );
         Skill.query()
           .insert({ name: skill })
@@ -29,10 +29,10 @@ const hears = slackController => {
                 bot.reply(message, `Unable to add ${skill} as a skill :(`);
               }
               bot.reply(message, err);
-            },
+            }
           );
       }
-    },
+    }
   );
 };
 
