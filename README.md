@@ -55,12 +55,12 @@ SLACK_CLIENT_SIGNING_SECRET=xxxxxxx
 Click on the "Bot Users" tab, and click "Add a Bot User" button, specify a name for your bot, 
 and enable the option for "Always Show My Bot as Online", then click save.
 
-Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under "Redirect URLs", add https://ngrok-url/oauth, then click save.
+Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under "Redirect URLs", add https://{ngrok-url}/oauth, then click save.
 
-Click on the "Interactive Components" tab, under "Request URL", add https://ngrok-url/slack/receive, then click save.
+Click on the "Interactive Components" tab, under "Request URL", add https://{ngrok-url}/slack/receive, then click save.
 
-Click on the "Event Subscriptions" tab, and switch on "Enable Events", under "Request URL", add https://ngrok-url/slack/receive. 
-Once finish typing, Slack will verify that this endpoint is properly configured, the local must be running and exposed to public internet to make this work.
+Click on the "Event Subscriptions" tab, and switch on "Enable Events", under "Request URL", add https://{ngrok-url}/slack/receive. 
+Once finish typing, Slack will verify that this endpoint is properly configured, you must have your localhost running and exposed to public internet to make this work.
 
 Once verified, click "Add Bot User Event", and use the dropdown to search and select following events:
 
@@ -72,10 +72,10 @@ Once verified, click "Add Bot User Event", and use the dropdown to search and se
 ### Add your bot to workspace
 
 This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, 
-go to http://ngrok-url/login, and click **Authorize** button, then server will be connected to slack 
+go to http://{ngrok-url}/login, and click **Authorize** button, then server will be connected to slack 
 if there is no error message in console, this process authorizes the server and stores workspace information on server.
 
-Only need to run this process for first time set up or deploy this project, or if local storage is removed 
+You only need to run this process for first time set up or deploy this project, or if local storage is removed 
 (e.g. `.db_bot` on root directory is deleted).
 
 Create a channel for testing your bot, and invite the bot to the channel.
