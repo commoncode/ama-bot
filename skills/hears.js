@@ -13,13 +13,11 @@ const hears = slackController => {
     '',
     ['direct_message', 'direct_mention', 'app_mention'],
     (bot, message) => {
-      if (message.text.includes(['`'])) {
+      if (message.text.includes(['_'])) {
         const skill = message.text.substring(
-          message.text.indexOf('`') + 1,
-          message.text.lastIndexOf('`')
+          message.text.indexOf('_') + 1,
+          message.text.lastIndexOf('_')
         );
-        // add the skill to db
-
         Skill.query()
           .insert({ name: skill })
           .then(
@@ -30,6 +28,7 @@ const hears = slackController => {
               if (!(err instanceof UniqueViolationError)) {
                 bot.reply(message, `Unable to add ${skill} as a skill :(`);
               }
+              bot.reply(message, err);
             }
           );
       }
