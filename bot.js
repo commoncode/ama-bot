@@ -12,6 +12,7 @@ if (
   !process.env.SLACK_CLIENT_SIGNING_SECRET ||
   !process.env.PORT
 ) {
+  console.error('Empty or unset Environment Variables')
   process.exit(1);
 }
 
