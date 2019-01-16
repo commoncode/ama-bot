@@ -42,7 +42,4 @@ userRegistration(slackController);
 onBoarding(slackController);
 
 // Load in skills.
-const normalizedPath = require('path').join(__dirname, '/skills');
-require('fs').readdirSync(normalizedPath).forEach(file => {
-  require('./skills/' + file)(slackController);
-});
+require('./skills/hears')(slackController);

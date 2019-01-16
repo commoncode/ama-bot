@@ -25,9 +25,11 @@ test('test remove white space around multiple skills', () =>
   expect(hears.extractSkills('some _skill _is here_       what     _ is happening')).toEqual(['skill', 'what'])
 );
 
+
 test('test behavior is consistent for missed underscores', () =>
   expect(hears.extractSkills('some skill _is here_       what     _ is happening')).toEqual(['is here'])
 );
+
 
 test('test many skills still works okay', () =>
   expect(
