@@ -44,23 +44,31 @@ If all goes well you should see `Tunnel States` is `online`, and Forwarding url.
 
 Go to https://api.slack.com/apps?new_app=1 and create a new app.
 
-Copy Client ID, Client Secret and Signing Secret into `.env` at the root directory:
+In your workspace create a `.env` file to use to set environment variables locally:
 
 ```
 SLACK_CLIENT_ID=xxxxxxx
 SLACK_CLIENT_SECRET=xxxxxxx
 SLACK_CLIENT_SIGNING_SECRET=xxxxxxx
+PORT=XXXX
 ```
 
-Click on the "Bot Users" tab, and click "Add a Bot User" button, specify a name for your bot, 
-and enable the option for "Always Show My Bot as Online", then click save.
+An example file is given in `./example.env`. values for the variables can be found 
+on the main slack app management page.
 
-Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under "Redirect URLs", add https://{ngrok-url}/oauth, then click save.
+Click on the "Bot Users" tab, and click "Add a Bot User" button, specify a name for 
+your bot,  and enable the option for "Always Show My Bot as Online", then click save.
 
-Click on the "Interactive Components" tab, under "Request URL", add https://{ngrok-url}/slack/receive, then click save.
+Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under 
+"Redirect URLs", add https://{ngrok-url}/oauth, then click save.
 
-Click on the "Event Subscriptions" tab, and switch on "Enable Events", under "Request URL", add https://{ngrok-url}/slack/receive. 
-Once finish typing, Slack will verify that this endpoint is properly configured, you must have your localhost running and exposed to public internet to make this work.
+Click on the "Interactive Components" tab, under "Request URL", 
+add https://{ngrok-url}/slack/receive, then click save.
+
+Click on the "Event Subscriptions" tab, and switch on "Enable Events", 
+under "Request URL", add https://{ngrok-url}/slack/receive. Once finish typing, 
+Slack will verify that this endpoint is properly configured, you must have your 
+localhost running and exposed to public internet to make this work.
 
 Once verified, click "Add Bot User Event", and use the dropdown to search and select following events:
 
@@ -114,7 +122,8 @@ This project uses
 
 ### Running Migrations
 
-To create a new migration, run `knex migration:make create_MYTABLE` from the root of the project. Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
+To create a new migration, run `knex migration:make create_MYTABLE` from the root of the project. 
+Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
 
 Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run. 
 
