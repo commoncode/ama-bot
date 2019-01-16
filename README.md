@@ -26,7 +26,7 @@ npm run dev
 
 ### Ngrok setup
 
-Install ngrok globally:
+Install ngrok, you can do that using most os packages managers or through npm:
 
 ```bash
 npm install ngrok -g
@@ -40,9 +40,14 @@ ngrok http 3000
 
 If all goes well you should see `Tunnel States` is `online`, and Forwarding url.
 
-### Slack App setup
+### Local Development Setup
 
-Go to https://api.slack.com/apps?new_app=1 and create a new app.
+Start the Application:
+```
+npm start
+```
+
+Create a [new app](https://api.slack.com/apps?new_app=1).
 
 Copy Client ID, Client Secret and Signing Secret into `.env` at the root directory:
 
