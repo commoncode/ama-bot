@@ -4,7 +4,7 @@ const server = require('./server');
 const userRegistration = require('./components/userRegistration');
 const onBoarding = require('./components/onBoarding');
 
-dotenv.load();
+dotenv.load(); // Doesn't override already set environment variables
 
 if (
   !process.env.SLACK_CLIENT_ID ||
@@ -12,6 +12,7 @@ if (
   !process.env.SLACK_CLIENT_SIGNING_SECRET ||
   !process.env.PORT
 ) {
+  console.error('Empty or unset Environment Variables');
   process.exit(1);
 }
 
