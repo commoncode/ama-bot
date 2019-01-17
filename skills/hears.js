@@ -21,30 +21,23 @@ const extractSkills = (messageString) => {
 };
 
 
-const pushSkill = (skill) => {
-  Skill.query()
-    .insert({ name: skill })
-    .then(
-      res => {
-        return `${skill} was added as a new skill!`;
-      },
-      err => {
-        if (!(err instanceof UniqueViolationError)) {
-          return `${skill} is already a skill`;
-        }
-        console.error(err);
-        return `Unable to add ${skill} as a skill :(`;
-      }
-    );
-};
-
-
 const handler = (bot, message) => {
   var skills = extractSkills(message.text);
 
   skills.forEach(skill => {
-    var replyMessage = pushSkill(skill);
-    bot.reply(message, replyMessage);
+    Skill.query()
+      .insert({ name: skill })
+      .then(
+        res => {
+          bot.reply(message, `${skill} was added as a new skill!`);
+        },
+        err => {
+          if (!(err instanceof UniqueViolationError)) {
+            bot.reply(message, `Unable to add ${skill} as a skill :(`);
+          }
+          bot.reply(message, err);
+        }
+      );
   });
 };
 
