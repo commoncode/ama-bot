@@ -30,9 +30,10 @@ const pushSkill = (skill) => {
       },
       err => {
         if (!(err instanceof UniqueViolationError)) {
-          return `Unable to add ${skill} as a skill :(`;
+          return `${skill} is already a skill`;
         }
-        return err;
+        console.error(err);
+        return `Unable to add ${skill} as a skill :(`;
       }
     );
 };
