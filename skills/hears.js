@@ -2,9 +2,9 @@ const { Skill } = require('../models/schema');
 const { UniqueViolationError } = require('objection-db-errors');
 
 
-const extractSkills = (message) => {
+const extractSkills = (messageString) => {
   var skillPattern = /_[^@_]+_/g;
-  var matches = message.match(skillPattern);
+  var matches = messageString.match(skillPattern);
 
   if (matches == null) {
     return [];
@@ -39,7 +39,7 @@ const pushSkill = (skill) => {
 
 
 const handler = (bot, message) => {
-  var skills = extractSkills(message);
+  var skills = extractSkills(message.text);
 
   skills.forEach(skill => {
     var replyMessage = pushSkill(skill);
@@ -62,5 +62,4 @@ const hears = slackController => {
 };
 
 module.exports = hears;
-module.exports.handler = handler;
 module.exports.extractSkills = extractSkills;
