@@ -40,12 +40,7 @@ ngrok http 3000
 
 If all goes well you should see `Tunnel States` is `online`, and Forwarding url.
 
-### Local Development Setup
-
-Start the Application:
-```
-npm start
-```
+### Slack App setup
 
 Create a [new app](https://api.slack.com/apps?new_app=1).
 
