@@ -52,7 +52,7 @@ const hears = slackController => {
     }
   );
 
-  slackController.hears('', ['direct_message', 'direct_mention', 'app_mention'], handler);
+  slackController.hears(':tanabata_tree:', ['ambient'], handler);
 };
 
 module.exports = hears;
