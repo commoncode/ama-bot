@@ -26,7 +26,7 @@ npm run dev
 
 ### Ngrok setup
 
-Install ngrok globally:
+Install ngrok, you can do that using most os packages managers or through npm:
 
 ```bash
 npm install ngrok -g
@@ -42,7 +42,7 @@ If all goes well you should see `Tunnel States` is `online`, and Forwarding url.
 
 ### Slack App setup
 
-Go to https://api.slack.com/apps?new_app=1 and create a new app.
+Create a [new app](https://api.slack.com/apps?new_app=1).
 
 In your workspace create a `.env` file to use to set environment variables locally:
 
