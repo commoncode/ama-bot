@@ -1,6 +1,5 @@
-const { Skill } = require('../models/schema');
-const { UniqueViolationError } = require('objection-db-errors');
-
+const { Skill, Message, Point } = require('../models/schema');
+const personService = require('../lib/personService');
 
 const LEARNING_KEY = ':tanabata_tree:';
 
@@ -24,23 +23,38 @@ const extractSkills = (messageString) => {
 };
 
 
-const handler = (bot, message) => {
-
+const handler = async (bot, message) => {
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
-  var skills = extractSkills(messageContent);
+  const skills = extractSkills(messageContent);
 
-  skills.forEach(skill => {
-    Skill.query()
-      .insert({ name: skill })
-      .then(res => bot.reply(message, `${skill} was added as a new skill!`),
-        err => {
-          if (!(err instanceof UniqueViolationError)) {
-            bot.reply(message, `Unable to add ${skill} as a skill :(`);
-          }
-          bot.reply(message, err);
+  if (skills.length) {
+    try {
+      const messageRecord = await Message.query().insertAndFetch({
+        text: message.event.text,
+        datetime: new Date().toISOString(),
+      });
+
+      const learnerRecord = await personService.findOrInsertPerson(bot, message.user);
+
+      skills.forEach(async skill => {
+        let skillRecord = await Skill.query().findOne({ name: skill });
+        if (!skillRecord) {
+          skillRecord = await Skill.query().insertAndFetch({ name: skill });
+          bot.reply(message, `${skill} was added as a new skill!`);
         }
-      );
-  });
+
+        // Insert learning point.
+        await Point.query().insert({
+          message_id: messageRecord.id,
+          skill_id: skillRecord.id,
+          teach: false,
+          person_id: learnerRecord.id,
+        });
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
 };
 
 
