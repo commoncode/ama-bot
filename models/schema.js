@@ -77,11 +77,16 @@ class Point extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['message_id', 'skill_id', 'person_id'],
+      required: [
+        'teach',
+        'message_id',
+        'skill_id',
+        'person_id',
+      ],
 
       properties: {
         id: { type: 'integer' },
-        teach: { type: ['binary', 'null'] },
+        teach: { type: 'boolean' },
         message_id: { type: ['integer'] },
         skill_id: { type: ['integer'] },
         person_id: { type: ['integer'] },

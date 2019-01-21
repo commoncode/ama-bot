@@ -2,7 +2,7 @@ exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.createTable('points', table => {
       table.increments('id').primary();
-      table.binary('teach');
+      table.boolean('teach').notNullable();
       table
         .integer('message_id')
         .references('messages.id')
