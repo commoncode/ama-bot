@@ -45,16 +45,7 @@ const handler = (bot, message) => {
 
 
 const hears = slackController => {
-
-  slackController.hears(
-    'hello',
-    ['direct_mention'],
-    (bot, message) => {
-      bot.reply(message, 'Hello ');
-    }
-  );
-
-  slackController.hears(LEARNING_KEY, ['ambient', "direct_mention", "mention"], handler);
+  slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
 };
 
 
