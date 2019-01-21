@@ -24,9 +24,9 @@ const extractSkills = (messageString) => {
 };
 
 
-const handler = (bot, message_body) => {
+const handler = (bot, message) => {
 
-  const messageContent = message_body.text.replace(LEARNING_KEY, ' ');
+  const messageContent = message.text.replace(LEARNING_KEY, ' ');
   var skills = extractSkills(messageContent);
 
   skills.forEach(skill => {
