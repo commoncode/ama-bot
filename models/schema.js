@@ -14,13 +14,12 @@ class Person extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['username'],
+      required: ['username', 'slack_id'],
 
       properties: {
         id: { type: 'integer' },
         username: { type: 'string', minLength: 1, maxLength: 255 },
-        teach_score: { type: ['integer', 'null'] },
-        learn_score: { type: ['integer', 'null'] },
+        slack_id: { type: 'string', minLength: 1, maxLength: 255 },
       },
     };
   }
@@ -78,11 +77,16 @@ class Point extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['name'],
+      required: [
+        'teach',
+        'message_id',
+        'skill_id',
+        'person_id',
+      ],
 
       properties: {
         id: { type: 'integer' },
-        teach: { type: ['binary', 'null'] },
+        teach: { type: 'boolean' },
         message_id: { type: ['integer'] },
         skill_id: { type: ['integer'] },
         person_id: { type: ['integer'] },
