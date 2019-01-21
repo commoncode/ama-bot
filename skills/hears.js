@@ -2,6 +2,9 @@ const { Skill } = require('../models/schema');
 const { UniqueViolationError } = require('objection-db-errors');
 
 
+const LEARNING_KEY = ':tanabata_tree:';
+
+
 const extractSkills = (messageString) => {
   const skillPattern = /_[^@_]+_/g;
   const matches = messageString.match(skillPattern);
@@ -22,15 +25,14 @@ const extractSkills = (messageString) => {
 
 
 const handler = (bot, message) => {
-  var skills = extractSkills(message.text);
+
+  const messageContent = message.replace(LEARNING_KEY, ' ');
+  var skills = extractSkills(messageContent.text);
 
   skills.forEach(skill => {
     Skill.query()
       .insert({ name: skill })
-      .then(
-        res => {
-          bot.reply(message, `${skill} was added as a new skill!`);
-        },
+      .then(res => bot.reply(message, `${skill} was added as a new skill!`),
         err => {
           if (!(err instanceof UniqueViolationError)) {
             bot.reply(message, `Unable to add ${skill} as a skill :(`);
@@ -52,8 +54,9 @@ const hears = slackController => {
     }
   );
 
-  slackController.hears(':tanabata_tree:', ['ambient'], handler);
+  slackController.hears(LEARNING_KEY, ['ambient'], handler);
 };
+
 
 module.exports = hears;
 module.exports.extractSkills = extractSkills;
