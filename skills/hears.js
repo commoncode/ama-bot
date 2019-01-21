@@ -2,9 +2,6 @@ const { Skill } = require('../models/schema');
 const { UniqueViolationError } = require('objection-db-errors');
 
 
-const LEARNING_KEY = ':tanabata_tree:';
-
-
 const extractSkills = (messageString) => {
   const skillPattern = /_[^@_]+_/g;
   const matches = messageString.match(skillPattern);
@@ -26,7 +23,7 @@ const extractSkills = (messageString) => {
 
 const handler = (bot, message) => {
 
-  const messageContent = message.replace(LEARNING_KEY, ' ');
+  const messageContent = message.replace(':tanabata_tree:', ' ');
   var skills = extractSkills(messageContent.text);
 
   skills.forEach(skill => {
@@ -54,7 +51,7 @@ const hears = slackController => {
     }
   );
 
-  slackController.hears(LEARNING_KEY, ['ambient'], handler);
+  slackController.hears(':tanabata_tree:', ['ambient'], handler);
 };
 
 
