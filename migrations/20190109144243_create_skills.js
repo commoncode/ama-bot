@@ -2,11 +2,14 @@ exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.createTable('skills', table => {
       table.increments('id').primary();
-      table.string('name');
+      table
+        .string('name')
+        .unique()
+        .notNullable();
     }),
   ]);
 };
 
 exports.down = function (knex, Promise) {
-  return Promise.all([knex.schema.dropTable('people')]);
+  return Promise.all([knex.schema.dropTableIfExists('skills')]);
 };
