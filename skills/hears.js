@@ -3,8 +3,8 @@ const { UniqueViolationError } = require('objection-db-errors');
 
 
 const extractSkills = (messageString) => {
-  var skillPattern = /_[^@_]+_/g;
-  var matches = messageString.match(skillPattern);
+  const skillPattern = /_[^@_]+_/g;
+  const matches = messageString.match(skillPattern);
 
   if (matches == null) {
     return [];
