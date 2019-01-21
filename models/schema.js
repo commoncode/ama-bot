@@ -18,7 +18,6 @@ class Person extends Model {
 
       properties: {
         id: { type: 'integer' },
-        slack_id: { type: 'string' },
         username: { type: 'string', minLength: 1, maxLength: 255 },
         slack_id: { type: 'string', minLength: 1, maxLength: 255 },
       },
