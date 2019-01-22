@@ -1,3 +1,4 @@
+const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
@@ -36,27 +37,29 @@ const handler = async (bot, message) => {
 
   if (skills.length && learnerName) {
     try {
-      const messageRecord = await Message.query().insertAndFetch({
-        text: message.event.text,
-        datetime: new Date().toISOString(),
-      });
-
-      const learnerRecord = await personService.findOrInsertPerson(learnerSlackId, learnerName);
-
-      skills.forEach(async skill => {
-        let skillRecord = await Skill.query().findOne({ name: skill });
-        if (!skillRecord) {
-          skillRecord = await Skill.query().insertAndFetch({ name: skill });
-          bot.reply(message, `${skill} was added as a new skill!`);
-        }
-
-        // Insert learning point.
-        await Point.query().insert({
-          message_id: messageRecord.id,
-          skill_id: skillRecord.id,
-          teach: false,
-          person_id: learnerRecord.id,
+      await transaction(Point.knex(), async trx => {
+        const messageRecord = await Message.query(trx).insertAndFetch({
+          text: message.event.text,
+          datetime: new Date().toISOString(),
         });
+
+        const learnerRecord = await personService.findOrInsertPerson(learnerSlackId, learnerName, trx);
+
+        for (const skill of skills) {
+          let skillRecord = await Skill.query(trx).findOne({ name: skill });
+          if (!skillRecord) {
+            skillRecord = await Skill.query(trx).insertAndFetch({ name: skill });
+            bot.reply(message, `${skill} was added as a new skill!`);
+          }
+
+          // Insert learning point.
+          await Point.query(trx).insert({
+            message_id: messageRecord.id,
+            skill_id: skillRecord.id,
+            teach: false,
+            person_id: learnerRecord.id,
+          });
+        }
       });
     } catch (err) {
       console.error(err);
