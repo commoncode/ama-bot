@@ -1,5 +1,6 @@
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
+const genAsyncBot = require('../lib/asyncBot');
 
 const LEARNING_KEY = ':tanabata_tree:';
 
@@ -24,17 +25,23 @@ const extractSkills = (messageString) => {
 
 
 const handler = async (bot, message) => {
+  const asyncBot = genAsyncBot(bot);
+
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
 
-  if (skills.length) {
+  const learnerSlackId = message.user;
+  const { user: learnerInfoSlack } = await asyncBot.api.users.info({ user: learnerSlackId });
+  const { name: learnerName } = learnerInfoSlack;
+
+  if (skills.length && learnerName) {
     try {
       const messageRecord = await Message.query().insertAndFetch({
         text: message.event.text,
         datetime: new Date().toISOString(),
       });
 
-      const learnerRecord = await personService.findOrInsertPerson(bot, message.user);
+      const learnerRecord = await personService.findOrInsertPerson(learnerSlackId, learnerName);
 
       skills.forEach(async skill => {
         let skillRecord = await Skill.query().findOne({ name: skill });
