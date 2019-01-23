@@ -4,9 +4,10 @@ const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
 
 const LEARNING_KEY = ':tanabata_tree:';
-const MAIN_HELP_TEXT = `To record that you learned something, include the" + 
-    " ${LEARNING_KEY} emoji in any message and surround the skill or topic in underscores." + 
-    " You can also @mention people in the same message to credit them with teaching you.`;
+const MAIN_HELP_TEXT = `To record that you learned something, include the ${LEARNING_KEY} emoji 
+in any message and surround the skill or topic in underscores. 
+
+You can also @mention people in the same message to credit them with teaching you.`;
 
 
 const extractSkills = (messageString) => {
