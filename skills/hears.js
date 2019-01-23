@@ -68,8 +68,14 @@ const handler = async (bot, message) => {
 };
 
 
+const helpHandler = (bot, message) => {
+  bot.whisper(`Hello, I use the ${LEARNING_KEY} to detect you calling for me to record some learning and teaching`);
+};
+
+
 const hears = slackController => {
   slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
+  slackController.hears('', ['direct_mention', 'mention'], helpHandler);
 };
 
 
