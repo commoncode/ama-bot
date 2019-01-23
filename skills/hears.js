@@ -4,6 +4,9 @@ const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
 
 const LEARNING_KEY = ':tanabata_tree:';
+const MAIN_HELP_TEXT = `To record that you learned something, include the" + 
+    " ${LEARNING_KEY} emoji in any message and surround the skill or topic in underscores." + 
+    " You can also @mention people in the same message to credit them with teaching you.`;
 
 
 const extractSkills = (messageString) => {
@@ -25,7 +28,7 @@ const extractSkills = (messageString) => {
 };
 
 
-const handler = async (bot, message) => {
+const learningHandler = (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
@@ -69,12 +72,18 @@ const handler = async (bot, message) => {
 
 
 const helpHandler = (bot, message) => {
-  bot.whisper(message, `Hello, I use the ${LEARNING_KEY} to detect you calling for me to record some learning and teaching`);
+  bot.whisper(message, MAIN_HELP_TEXT);
+};
+
+
+const commandHandler = (bot, message) => {
+  bot.replyPrivate(message, MAIN_HELP_TEXT);
 };
 
 
 const hears = slackController => {
-  slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
+  slackController.on('ama', commandHandler);
+  slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], learningHandler);
   slackController.hears('', ['direct_mention', 'mention'], helpHandler);
 };
 
