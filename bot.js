@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 const botkit = require('botkit');
+const botkitStoragePostgres = require('botkit-storage-postgres');
 const server = require('./server');
 const userRegistration = require('./components/userRegistration');
 const onBoarding = require('./components/onBoarding');
@@ -23,11 +24,23 @@ const botOptions = {
   scopes: ['bot'],
 };
 
-if (process.env.DB_URL) {
-  // TODO: config postgres storage.
-  // botOptions.storage = postgresStorage;
+if (
+  process.env.DB_HOST &&
+  process.env.DB_PORT &&
+  process.env.DB_NAME &&
+  process.env.DB_USER &&
+  process.env.DB_PASSWORD
+) {
+  // Set up custom Postgres storage system to store workspaces, channels and users data.
+  botOptions.storage = botkitStoragePostgres({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+  });
 } else {
-  // Store user data in a simple JSON format.
+  // Store workspaces, channels and users data in a simple JSON format.
   botOptions.json_file_store = '.db_bot/';
 }
 
