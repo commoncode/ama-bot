@@ -69,7 +69,7 @@ const handler = async (bot, message) => {
 
 
 const helpHandler = (bot, message) => {
-  bot.whisper(`Hello, I use the ${LEARNING_KEY} to detect you calling for me to record some learning and teaching`);
+  bot.whisper(message, `Hello, I use the ${LEARNING_KEY} to detect you calling for me to record some learning and teaching`);
 };
 
 
