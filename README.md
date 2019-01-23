@@ -53,6 +53,11 @@ SLACK_CLIENT_ID=xxxxxxx
 SLACK_CLIENT_SECRET=xxxxxxx
 SLACK_CLIENT_SIGNING_SECRET=xxxxxxx
 PORT=XXXX
+DB_HOST=xxxx
+DB_PORT=xxxx
+DB_USER=xxxx
+DB_NAME=xxxx
+DA_PASSWORD=xxxx
 ```
 
 An example file is given in `./example.env`. values for the variables can be found
