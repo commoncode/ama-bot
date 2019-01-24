@@ -25,6 +25,8 @@ const extractSkills = (messageString) => {
   return skills;
 };
 
+const leaderBoardHandler = (bot, message) => {
+};
 
 const handler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
@@ -95,6 +97,13 @@ const handler = async (bot, message) => {
 
 const hears = slackController => {
   slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
+  slackController.on('slash_command', (bot, message) => {
+    const commandHandlers = {
+      '/leaderboard': leaderBoardHandler,
+    };
+
+    commandHandlers[message.command](bot, message);
+  });
 };
 
 

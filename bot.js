@@ -21,7 +21,7 @@ const botOptions = {
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   clientSigningSecret: process.env.SLACK_CLIENT_SIGNING_SECRET,
-  scopes: ['bot'],
+  scopes: ['commands', 'bot'],
 };
 
 if (

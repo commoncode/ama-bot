@@ -82,6 +82,11 @@ Once verified, click "Add Bot User Event", and use the dropdown to search and se
 - `message.im`
 - `message.mpim`
 
+### Add slash command to Slack App
+
+Click on "Slash Commands" tab, and click on "Create New Command" button,
+add "/leaderboard" under "Command", and add https://{ngrok-url}/slack/receive under "Request URL" and save.
+
 ### Add your bot to workspace
 
 This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, 
