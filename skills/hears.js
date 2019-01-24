@@ -2,6 +2,7 @@ const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
+const { extractMentionedPeople } = require('../lib/message');
 
 const LEARNING_KEY = ':tanabata_tree:';
 
@@ -30,6 +31,8 @@ const handler = async (bot, message) => {
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
+
+  const teachers = extractMentionedPeople(messageContent);
 
   const learnerSlackId = message.user;
   const { user: learnerInfoSlack } = await asyncBot.api.users.info({ user: learnerSlackId });
