@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
@@ -25,7 +26,20 @@ const extractSkills = (messageString) => {
   return skills;
 };
 
-const leaderBoardHandler = (bot, message) => {
+const leaderBoardHandler = async (bot, message) => {
+  const today = new Date().toISOString();
+  const mondayOfCurrentWeek = moment().startOf('isoWeek').utc().format();
+
+  const currentWeekPoints = Point.query()
+    .select('person_id')
+    .count('points.id as learnerPoints')
+    .joinRelation('messages')
+    .whereBetween('messages.datetime', [mondayOfCurrentWeek, today]);
+
+  const learningPoints = await currentWeekPoints
+    .andWhere('teach', false)
+    .groupBy('person_id');
+
 };
 
 const handler = async (bot, message) => {
