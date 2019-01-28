@@ -90,7 +90,9 @@ Create a channel for testing your bot, and invite the bot to the channel.
 
 Type "@bot-name hello", it should reply "Hello world".
 
-## Infrastructure
+# Infrastructure
+
+## Deployment
 
 AMA-bot Heroku PAAS to host and resource the application. Its run under a Pipeline: 
 
@@ -109,8 +111,17 @@ This is the domain needed to be configured in the Event Subscription of the Slac
 This `staging` pipeline step automatically deploys the `develop` branch of the repo from github and can manually
 be triggered to deploy any branch by a contributor at the bottom of the applications deploy menu on Heroku.
 
-The `staging` application also has a postgres database 'add on' which can be accessed by the `dyno` process using the 
-environment variable `DATABASE_URL`. It is currently using Postgres 10.6.
+The `staging` application also has a postgres database 'addon' which can be accessed by the `dyno` process using the 
+environment variable `DATABASE_URL`.
+
+### Manual Authentication
+Currently due to storing the authentication credentials in ephemeral storage each time the app is deployed it needs 
+to be re-authenticated by a slack user logging in here:
+
+https://cc-ama-bot-dev.herokuapp.com/login
+
+This is to be fixed by: [CCP-142](https://commoncode.atlassian.net/browse/CCP-142)
+
 
 ## Database
 
@@ -120,14 +131,17 @@ This project uses
 - [knex.j](https://knexjs.org/) (js SQL query builder)
 - [objection.js](http://vincit.github.io/objection.js/) (ORM)
 
+The production database is hosted and managed by heroku as an 'addon'.  It is currently using Postgres 10.6.
+
 ### Running Migrations
 
-To create a new migration, run `knex migration:make create_MYTABLE` from the root of the project. 
+To create a new migration, run `knex migration:make migration_name` from the root of the project. 
 Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
 
 Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run. 
 
-As defined in the Heroku Procfile, all latest migrations should be run before each release. 
+As defined in the Heroku Procfile, all latest migrations should be run before each release. Notably the deploy
+process on heroku does not run a rollback so for each schema change a new migration needs to be made.
 
 ## CircleCI
 
@@ -136,4 +150,3 @@ It's setup through the Common Code organisation on Github and is configured in t
 normal location:
 
 .circleci/config.yml
-
