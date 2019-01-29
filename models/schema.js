@@ -148,7 +148,7 @@ class Message extends Model {
         relation: Model.HasManyRelation,
         modelClass: Point,
         join: {
-          from: 'message.id',
+          from: 'messages.id',
           to: 'points.message_id',
         },
       },
