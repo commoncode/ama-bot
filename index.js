@@ -1,0 +1,47 @@
+const dotenv = require('dotenv');
+const botkit = require('botkit');
+const server = require('./server');
+const authHears = require('./components/userRegistration');
+const onBoarding = require('./components/onBoarding');
+const skills = require('./skills/hears');
+
+dotenv.load(); // Doesn't override already set environment variables
+
+if (
+  !process.env.SLACK_CLIENT_ID ||
+  !process.env.SLACK_CLIENT_SECRET ||
+  !process.env.SLACK_CLIENT_SIGNING_SECRET ||
+  !process.env.PORT
+) {
+  console.error('Empty or unset Environment Variables');
+  process.exit(1);
+}
+
+const botOptions = {
+  clientId: process.env.SLACK_CLIENT_ID,
+  clientSecret: process.env.SLACK_CLIENT_SECRET,
+  clientSigningSecret: process.env.SLACK_CLIENT_SIGNING_SECRET,
+  scopes: ['bot'],
+};
+
+if (process.env.DB_URL) {
+  // TODO: config postgres storage.
+  // botOptions.storage = postgresStorage;
+} else {
+  // Store user data in a simple JSON format.
+  botOptions.json_file_store = '.db_bot/';
+}
+
+// Create the Botkit controller, which controls all instances of the bot.
+const slackController = botkit.slackbot(botOptions);
+
+slackController.startTicking();
+
+// Set up express server.
+server(slackController);
+
+// Adding Listeners
+
+authHears.confgiure(slackController);
+onBoarding(slackController);
+skill(slackController);

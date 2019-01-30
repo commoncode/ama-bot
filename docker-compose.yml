@@ -1,0 +1,8 @@
+bot-db:
+  image: postgres:10.6
+  environment:
+    POSTGRES_PASSWORD: password
+    POSTGRES_USER: user
+    POSTGRES_DB: database
+  ports:
+    - 5432:5432knew

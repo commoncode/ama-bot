@@ -1,4 +1,4 @@
-const hears = require('../hears.js');
+const hears = require('../skills.js');
 
 
 test('test returns the single match in a sentence', () =>
