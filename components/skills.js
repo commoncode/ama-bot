@@ -1,3 +1,4 @@
+const slackController = require('./bot');
 const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
@@ -67,11 +68,8 @@ const handler = async (bot, message) => {
   }
 };
 
+slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
 
-const hears = slackController => {
-  slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
-};
-
-
-module.exports = hears;
+// for testing
+module.exports = handler;
 module.exports.extractSkills = extractSkills;

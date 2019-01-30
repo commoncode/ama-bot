@@ -1,66 +1,74 @@
-const userRegistration = (slackController) => {
+const slackController = require('./bot');
 
-  /* Handle event caused by a user logging in with oauth */
-  slackController.on('oauth:success', (payload) => {
+const handler = (payload) => {
 
-    if (!payload.identity.team_id) {
-      console.error('Error: received an oauth response without a team id');
+  if (!payload.identity.team_id) {
+    console.error('Error: received an oauth response without a team id');
+  }
+  slackController.storage.teams.get(payload.identity.team_id, (err, team) => {
+    if (err) {
+      console.error('Error: could not load team from storage system: ', payload.identity.team_id, err);
     }
-    slackController.storage.teams.get(payload.identity.team_id, (err, team) => {
-      if (err) {
-        console.error('Error: could not load team from storage system: ', payload.identity.team_id, err);
-      }
 
-      const isNewTeam = !team;
-      if (!team) {
-        team = {
-          id: payload.identity.team_id,
-          createdBy: payload.identity.user_id,
-          url: payload.identity.url,
-          name: payload.identity.team,
-        };
-      }
-
-      team.bot = {
-        token: payload.bot.bot_access_token,
-        user_id: payload.bot.bot_user_id,
+    const isNewTeam = !team;
+    if (!team) {
+      team = {
+        id: payload.identity.team_id,
         createdBy: payload.identity.user_id,
-        app_token: payload.access_token,
+        url: payload.identity.url,
+        name: payload.identity.team,
       };
+    }
 
-      const testBot = slackController.spawn(team.bot);
+    team.bot = {
+      token: payload.bot.bot_access_token,
+      user_id: payload.bot.bot_user_id,
+      createdBy: payload.identity.user_id,
+      app_token: payload.access_token,
+    };
 
-      testBot.api.auth.test({}, (err, botAuth) => {
-        if (err) {
-          console.error('Error: could not authenticate bot user', err);
-        } else {
-          team.bot.name = botAuth.user;
+    const testBot = slackController.spawn(team.bot);
 
-          // add in info that is expected by Botkit
-          testBot.identity = botAuth;
+    testBot.api.auth.test({}, (err, botAuth) => {
+      if (err) {
+        console.error('Error: could not authenticate bot user', err);
+      } else {
+        team.bot.name = botAuth.user;
 
-          testBot.identity.id = botAuth.user_id;
-          testBot.identity.name = botAuth.user;
+        // add in info that is expected by Botkit
+        testBot.identity = botAuth;
 
-          testBot.team_info = team;
+        testBot.identity.id = botAuth.user_id;
+        testBot.identity.name = botAuth.user;
 
-          slackController.storage.teams.save(team, (err) => {
-            if (err) {
-              console.error('Error: could not save team record:', err);
+        testBot.team_info = team;
+
+        slackController.storage.teams.save(team, (err) => {
+          if (err) {
+            console.error('Error: could not save team record:', err);
+          } else {
+            if (isNewTeam) {
+              slackController.trigger('create_team', [testBot, team]);
             } else {
-              if (isNewTeam) {
-                slackController.trigger('create_team', [testBot, team]);
-              } else {
-                slackController.trigger('update_team', [testBot, team]);
-              }
+              slackController.trigger('update_team', [testBot, team]);
             }
-          });
-        }
-      });
+          }
+        });
+      }
     });
   });
 
+  slackController.on('onboard', (bot) => {
+    bot.startPrivateConversation({ user: bot.config.createdBy }, (err, convo) => {
 
+      if (err) {
+        console.error(err);
+      } else {
+        convo.say('I am a bot that has just joined your team');
+        convo.say('You must now /invite me to a channel so that I can be of use!');
+      }
+    });
+  });
   slackController.on('create_team', (bot, team) => {
 
     // Trigger an event that will establish an RTM connection for this bot
@@ -76,6 +84,9 @@ const userRegistration = (slackController) => {
     // Trigger an event that will establish an RTM connection for this bot
     slackController.trigger('rtm:start', [bot]);
   });
+
+
+
 };
 
-module.exports = userRegistration;
+slackController.on('oauth:success', handler);
