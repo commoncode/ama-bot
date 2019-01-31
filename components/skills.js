@@ -1,4 +1,4 @@
-const slackController = require('./bot');
+const slackController = require('../bot');
 const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');

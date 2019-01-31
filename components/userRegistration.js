@@ -1,4 +1,4 @@
-const slackController = require('./bot');
+const slackController = require('../bot');
 
 const handler = (payload) => {
 
