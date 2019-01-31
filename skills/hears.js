@@ -29,7 +29,7 @@ const extractSkills = (messageString) => {
 };
 
 
-const learningHandler = (bot, message) => {
+const learningHandler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
