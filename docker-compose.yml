@@ -5,4 +5,4 @@ bot-db:
     POSTGRES_USER: user
     POSTGRES_DB: database
   ports:
-    - 5432:5432knew
+    - 5432:5432

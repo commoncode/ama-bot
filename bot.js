@@ -7,13 +7,11 @@ const botOptions = {
   scopes: ['bot'],
 };
 
-if (false) {
-  // TODO: config postgres storage.
-  // botOptions.storage = postgresStorage;
-} else {
-  // Store user data in a simple JSON format.
-  botOptions.json_file_store = '.db_bot/';
-}
+// TODO: config postgres storage.
+// botOptions.storage = postgresStorage;
+
+// Store user data in a simple JSON format.
+botOptions.json_file_store = '.db_bot/';
 
 const slackController = botkit.slackbot(botOptions);
 slackController.startTicking();
