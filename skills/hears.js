@@ -2,11 +2,9 @@ const { transaction } = require('objection');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
+const { LEARNING_KEY, MAIN_HELP_TEXT } = require('../static');
 
-const LEARNING_KEY = ':tanabata_tree:';
-
-
-const extractSkills = (messageString) => {
+const extractSkills = messageString => {
   const skillPattern = /_[^@_]+_/g;
   const matches = messageString.match(skillPattern);
 
@@ -24,15 +22,16 @@ const extractSkills = (messageString) => {
   return skills;
 };
 
-
-const handler = async (bot, message) => {
+const learningHandler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
 
   const learnerSlackId = message.user;
-  const { user: learnerInfoSlack } = await asyncBot.api.users.info({ user: learnerSlackId });
+  const { user: learnerInfoSlack } = await asyncBot.api.users.info({
+    user: learnerSlackId,
+  });
   const { name: learnerName } = learnerInfoSlack;
 
   if (skills.length && learnerName) {
@@ -43,12 +42,18 @@ const handler = async (bot, message) => {
           datetime: new Date().toISOString(),
         });
 
-        const learnerRecord = await personService.findOrInsertPerson(learnerSlackId, learnerName, trx);
+        const learnerRecord = await personService.findOrInsertPerson(
+          learnerSlackId,
+          learnerName,
+          trx
+        );
 
         for (const skill of skills) {
           let skillRecord = await Skill.query(trx).findOne({ name: skill });
           if (!skillRecord) {
-            skillRecord = await Skill.query(trx).insertAndFetch({ name: skill });
+            skillRecord = await Skill.query(trx).insertAndFetch({
+              name: skill,
+            });
             bot.reply(message, `${skill} was added as a new skill!`);
           }
 
@@ -67,11 +72,18 @@ const handler = async (bot, message) => {
   }
 };
 
-
-const hears = slackController => {
-  slackController.hears(LEARNING_KEY, ['ambient', 'direct_mention', 'mention'], handler);
+const helpHandler = (bot, message) => {
+  bot.whisper(message, MAIN_HELP_TEXT);
 };
 
+const hears = slackController => {
+  slackController.hears(
+    LEARNING_KEY,
+    ['ambient', 'direct_mention', 'mention'],
+    learningHandler
+  );
+  slackController.hears('', ['direct_mention', 'mention'], helpHandler);
+};
 
 module.exports = hears;
 module.exports.extractSkills = extractSkills;
