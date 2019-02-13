@@ -44,3 +44,4 @@ onBoarding(slackController);
 
 // Load in skills.
 require('./skills/hears')(slackController);
+require('./skills/slashCommands')(slackController);
