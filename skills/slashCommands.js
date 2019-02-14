@@ -48,9 +48,20 @@ const leaderboardHandler = async (bot, req) => {
     uniqueSortedPoints.length >= 3 &&
     res.filter(row => row.count === uniqueSortedPoints[2]);
 
-  const message = `Here are the top learners over the last week!
+  let message = `*:tada: Congratulations :tada: to our best learners this week*:
 
-  *First place (${uniqueSortedPoints[0]} points)*: ${firstPlace[0].username}`;
+  *${firstPlace[0].username}* learned *${uniqueSortedPoints[0]}* things`;
+
+  if (secondPlace) {
+    message += `*${secondPlace.map(obj => obj.username).join(',')}* learned *${
+      uniqueSortedPoints[1]
+    }* things`;
+  }
+  if (thirdPlace) {
+    message += `*${thirdPlace.map(obj => obj.username).join(',')}* learned *${
+      uniqueSortedPoints[2]
+    }* things`;
+  }
 
   bot.replyPrivateDelayed(req, message);
 };
