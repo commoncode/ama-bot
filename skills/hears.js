@@ -1,4 +1,5 @@
 const { transaction } = require('objection');
+const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
@@ -39,7 +40,7 @@ const learningHandler = async (bot, message) => {
       await transaction(Point.knex(), async trx => {
         const messageRecord = await Message.query(trx).insertAndFetch({
           text: message.event.text,
-          datetime: new Date().toISOString(),
+          datetime: moment().format(),
         });
 
         const learnerRecord = await personService.findOrInsertPerson(
