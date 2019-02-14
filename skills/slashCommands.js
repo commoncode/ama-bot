@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { raw } = require('objection');
-const { Message, Person } = require('../models/schema');
+const { Message } = require('../models/schema');
 const { MAIN_HELP_TEXT } = require('../static');
 
 const slashCommands = slackController => {
