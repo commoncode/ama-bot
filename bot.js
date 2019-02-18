@@ -20,7 +20,7 @@ const botOptions = {
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   clientSigningSecret: process.env.SLACK_CLIENT_SIGNING_SECRET,
-  scopes: ['bot'],
+  scopes: ['commands', 'bot'],
 };
 
 if (process.env.DB_URL) {
@@ -44,3 +44,4 @@ onBoarding(slackController);
 
 // Load in skills.
 require('./skills/hears')(slackController);
+require('./skills/slashCommands')(slackController);
