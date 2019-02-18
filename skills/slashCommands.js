@@ -6,7 +6,7 @@ const { MAIN_HELP_TEXT } = require('../static');
 const slashCommands = slackController => {
   slackController.on('slash_command', function (bot, req) {
     switch (req.command) {
-      case '/ama':
+      case '/ama-phoebe':
         bot.replyAcknowledge();
         switch (req.text) {
           case 'leaderboard':
@@ -74,17 +74,21 @@ const getMessageFromRes = (res, learn) => {
 
   *${firstPlace[0].username}* ${learn ? 'learned' : 'taught'} *${
   uniqueSortedPoints[0]
-}* things`;
+}* ${uniqueSortedPoints[0] === '1' ? 'thing' : 'things'}`;
 
   if (secondPlace) {
     message += `*${secondPlace.map(obj => obj.username).join(',')}* ${
       learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[1]}* things`;
+    } *${uniqueSortedPoints[1]}* ${
+      uniqueSortedPoints[1] === '1' ? 'thing' : 'things'
+    }`;
   }
   if (thirdPlace) {
     message += `*${thirdPlace.map(obj => obj.username).join(',')}* ${
       learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[2]}* things`;
+    } *${uniqueSortedPoints[2]}* ${
+      uniqueSortedPoints[2] === '1' ? 'thing' : 'things'
+    }`;
   }
 
   return message;
