@@ -3,28 +3,8 @@ const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
-const { extractMentionedPeople } = require('../lib/message');
+const { extractMentionedPeople, extractSkills } = require('../lib/message');
 const { LEARNING_KEY, MAIN_HELP_TEXT } = require('../static');
-
-const LEARNING_KEY = ':tanabata_tree:';
-
-const extractSkills = (messageString) => {
-  const skillPattern = /_[^@_]+_/g;
-  const matches = messageString.match(skillPattern);
-
-  if (matches == null) {
-    return [];
-  }
-
-  let skills = [];
-
-  matches.forEach(match => {
-    let skill = match.replace(/_/g, '').trim();
-    skills.push(skill);
-  });
-
-  return skills;
-};
 
 const learningHandler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
@@ -47,7 +27,7 @@ const learningHandler = async (bot, message) => {
           datetime: moment().format(),
         });
 
-         const learnerRecord = await personService.findOrInsertPerson(
+        const learnerRecord = await personService.findOrInsertPerson(
           learnerSlackId,
           learnerName,
           trx
@@ -72,10 +52,10 @@ const learningHandler = async (bot, message) => {
             });
             bot.reply(message, `${skill} was added as a new skill!`);
           }
-        
+
           const basePoint = {
-              message_id: messageRecord.id,
-              skill_id: skillRecord.id,
+            message_id: messageRecord.id,
+            skill_id: skillRecord.id,
           };
 
           // Insert learning point.
