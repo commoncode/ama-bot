@@ -74,10 +74,18 @@ const learningHandler = async (bot, message) => {
             });
           }
         }
-      });
-    } catch (err) {
-      console.error(err);
-    }
+
+        // Insert learning point.
+        await Point.query(trx).insert({
+          message_id: messageRecord.id,
+          skill_id: skillRecord.id,
+          teach: false,
+          person_id: learnerRecord.id,
+        });
+      }
+    });
+  } catch (err) {
+    console.error(err);
   }
 };
 
