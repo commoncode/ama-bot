@@ -142,7 +142,7 @@ The production database is hosted and managed by heroku as an 'addon'. It is cur
 
 ### Running Migrations
 
-To create a new migration, run `knex migrate:make create_MYTABLE` from the root of the project.
+To create a new migration, run `knex migrate:make create_MYTABLE` from the root of the project. 
 Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
 
 Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run.
