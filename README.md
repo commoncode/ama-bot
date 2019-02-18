@@ -32,6 +32,8 @@ Install ngrok, you can do that using most os packages managers or through npm:
 npm install ngrok -g
 ```
 
+_**Recommended:** Sign up for a free plan [here](https://dashboard.ngrok.com/user/signup) so that sessions don't expire every 8 hours. Follow the ngrok documents to add the authtoken to your local environment._
+
 Expose local server to public internet:
 
 ```bash
@@ -60,15 +62,14 @@ Click on the "Bot Users" tab, and click "Add a Bot User" button, specify a name 
 your bot, and enable the option for "Always Show My Bot as Online", then click save.
 
 Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under
-"Redirect URLs", add https://{ngrok-url}/oauth, then click save.
+"Redirect URLs", add `https://{ngrok-url}/oauth`, then click save.
 
 Click on the "Interactive Components" tab, under "Request URL",
-add https://{ngrok-url}/slack/receive, then click save.
+add `https://{ngrok-url}/slack/receive`, then click save.
 
 Click on the "Event Subscriptions" tab, and switch on "Enable Events",
-under "Request URL", add https://{ngrok-url}/slack/receive. Once finish typing,
-Slack will verify that this endpoint is properly configured, you must have your
-localhost running and exposed to public internet to make this work.
+under "Request URL", add `https://{ngrok-url}/slack/receive`. Once finish typing,
+Slack will verify that this endpoint is properly configured, therefore you must have your localhost running and exposed to public internet to make this work, and have npm running as well.
 
 Once verified, click "Add Bot User Event", and use the dropdown to search and select following events:
 
@@ -80,14 +81,14 @@ Once verified, click "Add Bot User Event", and use the dropdown to search and se
 ### Add slash command to Slack App
 
 Click on "Slash Commands" tab, and click on "Create New Command" button,
-add "/ama" under "Command", and add https://{ngrok-url}/slack/receive under "Request URL" and save.
+add "/ama" under "Command", and add `https://{ngrok-url}/slack/receive` under "Request URL" and save.
 
 Add `help` and `leaderboard` in the usage hint field as optional parameters to be passed in.
 
 ### Add your bot to workspace
 
 This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot,
-go to http://{ngrok-url}/login, and click **Authorize** button, then server will be connected to slack
+go to `http://{ngrok-url}/login`, and click **Authorize** button, then server will be connected to slack
 if there is no error message in console, this process authorizes the server and stores workspace information on server.
 
 You only need to run this process for first time set up or deploy this project, or if local storage is removed
@@ -95,7 +96,7 @@ You only need to run this process for first time set up or deploy this project, 
 
 Create a channel for testing your bot, and invite the bot to the channel.
 
-Type "@bot-name hello", it should reply "Hello world".
+Type `@bot-name hello`, it should reply with a help text on how to use the bot.
 
 # Infrastructure
 
@@ -139,6 +140,14 @@ This project uses
 - [objection.js](http://vincit.github.io/objection.js/) (ORM)
 
 The production database is hosted and managed by heroku as an 'addon'. It is currently using Postgres 10.6.
+
+For local development create a database `ama_test`. 
+Add the database url to your `.env` file
+
+```
+DATABASE_URL=postgres://postgres:pgadmin@localhost:5432/ama_test
+```
+You may need to add a role `postgres` with login to be able to run migrations.  
 
 ### Running Migrations
 
