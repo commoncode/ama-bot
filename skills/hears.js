@@ -35,41 +35,44 @@ const learningHandler = async (bot, message) => {
   });
   const { name: learnerName } = learnerInfoSlack;
 
-  if (skills.length && learnerName) {
-    try {
-      await transaction(Point.knex(), async trx => {
-        const messageRecord = await Message.query(trx).insertAndFetch({
-          text: message.event.text,
-          datetime: moment().format(),
-        });
+  // check if there is a teacher after CCP-117 gets merged
+  if (!skills.length || !learnerName) {
+    return;
+  }
 
-        const learnerRecord = await personService.findOrInsertPerson(
-          learnerSlackId,
-          learnerName,
-          trx
-        );
-
-        for (const skill of skills) {
-          let skillRecord = await Skill.query(trx).findOne({ name: skill });
-          if (!skillRecord) {
-            skillRecord = await Skill.query(trx).insertAndFetch({
-              name: skill,
-            });
-            bot.reply(message, `${skill} was added as a new skill!`);
-          }
-
-          // Insert learning point.
-          await Point.query(trx).insert({
-            message_id: messageRecord.id,
-            skill_id: skillRecord.id,
-            teach: false,
-            person_id: learnerRecord.id,
-          });
-        }
+  try {
+    await transaction(Point.knex(), async trx => {
+      const messageRecord = await Message.query(trx).insertAndFetch({
+        text: message.event.text,
+        datetime: moment().format(),
       });
-    } catch (err) {
-      console.error(err);
-    }
+
+      const learnerRecord = await personService.findOrInsertPerson(
+        learnerSlackId,
+        learnerName,
+        trx
+      );
+
+      for (const skill of skills) {
+        let skillRecord = await Skill.query(trx).findOne({ name: skill });
+        if (!skillRecord) {
+          skillRecord = await Skill.query(trx).insertAndFetch({
+            name: skill,
+          });
+          bot.whisper(message, `${skill} was added as a new skill!`);
+        }
+
+        // Insert learning point.
+        await Point.query(trx).insert({
+          message_id: messageRecord.id,
+          skill_id: skillRecord.id,
+          teach: false,
+          person_id: learnerRecord.id,
+        });
+      }
+    });
+  } catch (err) {
+    console.error(err);
   }
 };
 
