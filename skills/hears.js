@@ -3,31 +3,15 @@ const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
+const { extractMentionedPeople, extractSkills } = require('../lib/message');
 const { LEARNING_KEY, MAIN_HELP_TEXT } = require('../static');
-
-const extractSkills = messageString => {
-  const skillPattern = /_[^@_]+_/g;
-  const matches = messageString.match(skillPattern);
-
-  if (matches == null) {
-    return [];
-  }
-
-  let skills = [];
-
-  matches.forEach(match => {
-    let skill = match.replace(/_/g, '').trim();
-    skills.push(skill);
-  });
-
-  return skills;
-};
 
 const learningHandler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
+  const teachers = extractMentionedPeople(messageContent);
 
   const learnerSlackId = message.user;
   const { user: learnerInfoSlack } = await asyncBot.api.users.info({
@@ -35,7 +19,7 @@ const learningHandler = async (bot, message) => {
   });
   const { name: learnerName } = learnerInfoSlack;
 
-  if (skills.length && learnerName) {
+  if (skills.length && learnerName && teachers.length) {
     try {
       await transaction(Point.knex(), async trx => {
         const messageRecord = await Message.query(trx).insertAndFetch({
@@ -49,6 +33,17 @@ const learningHandler = async (bot, message) => {
           trx
         );
 
+        const teachersRecords = [];
+        for (const teacher of teachers) {
+
+          const { user: teacherInfoSlack } = await asyncBot.api.users.info({ user: teacher });
+          const { name: teacherName } = teacherInfoSlack;
+
+          teachersRecords.push(
+            await personService.findOrInsertPerson(teacher, teacherName, trx)
+          );
+        };
+
         for (const skill of skills) {
           let skillRecord = await Skill.query(trx).findOne({ name: skill });
           if (!skillRecord) {
@@ -58,13 +53,26 @@ const learningHandler = async (bot, message) => {
             bot.reply(message, `${skill} was added as a new skill!`);
           }
 
-          // Insert learning point.
-          await Point.query(trx).insert({
+          const basePoint = {
             message_id: messageRecord.id,
             skill_id: skillRecord.id,
+          };
+
+          // Insert learning point.
+          await Point.query(trx).insert({
+            ...basePoint,
             teach: false,
             person_id: learnerRecord.id,
           });
+
+          // Insert teaching points.
+          for (const teacherRecord of teachersRecords) {
+            await Point.query(trx).insert({
+              ...basePoint,
+              teach: true,
+              person_id: teacherRecord.id,
+            });
+          }
         }
       });
     } catch (err) {
