@@ -35,14 +35,15 @@ const learningHandler = async (bot, message) => {
 
         const teachersRecords = [];
         for (const teacher of teachers) {
-
-          const { user: teacherInfoSlack } = await asyncBot.api.users.info({ user: teacher });
+          const { user: teacherInfoSlack } = await asyncBot.api.users.info({
+            user: teacher,
+          });
           const { name: teacherName } = teacherInfoSlack;
 
           teachersRecords.push(
             await personService.findOrInsertPerson(teacher, teacherName, trx)
           );
-        };
+        }
 
         for (const skill of skills) {
           let skillRecord = await Skill.query(trx).findOne({ name: skill });
@@ -74,18 +75,10 @@ const learningHandler = async (bot, message) => {
             });
           }
         }
-
-        // Insert learning point.
-        await Point.query(trx).insert({
-          message_id: messageRecord.id,
-          skill_id: skillRecord.id,
-          teach: false,
-          person_id: learnerRecord.id,
-        });
-      }
-    });
-  } catch (err) {
-    console.error(err);
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 };
 
@@ -103,4 +96,3 @@ const hears = slackController => {
 };
 
 module.exports = hears;
-module.exports.extractSkills = extractSkills;
