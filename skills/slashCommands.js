@@ -5,15 +5,18 @@ const { MAIN_HELP_TEXT } = require('../static');
 
 const slashCommands = slackController => {
   slackController.on('slash_command', function (bot, req) {
+    console.log('req.command :: ', req.command);
     switch (req.command) {
       case '/ama':
         bot.replyAcknowledge();
         switch (req.text) {
           case 'leaderboard':
+            console.log('req.text:: ', req.text);
             leaderboardHandler(bot, req);
             break;
           case 'help':
           default:
+            console.log('req.text:: ', req.text);
             bot.whisper(req, MAIN_HELP_TEXT);
             break;
         }
