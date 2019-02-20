@@ -3,7 +3,10 @@ const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
-const { extractMentionedPeople, extractSkills } = require('../lib/message');
+const {
+  extractMentionedPeople,
+  extractSkills,
+} = require('../lib/messageService');
 const { LEARNING_KEY, MAIN_HELP_TEXT } = require('../static');
 
 const learningHandler = async (bot, message) => {
