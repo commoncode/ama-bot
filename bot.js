@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 const botkit = require('botkit');
-const botkitStoragePostgres = require('botkit-storage-postgres');
+const botkitStoragePostgres = require('botkit-storage-pg');
 const server = require('./server');
 const userRegistration = require('./components/userRegistration');
 const onBoarding = require('./components/onBoarding');

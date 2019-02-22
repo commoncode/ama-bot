@@ -156,4 +156,66 @@ class Message extends Model {
   }
 }
 
-module.exports = { Person, Skill, Point, Message };
+class BotkitUser extends Model {
+  static get tableName () {
+    return 'botkit_user';
+  }
+
+  static get jsonSchema () {
+    return {
+      type: 'object',
+      required: ['access_token', 'scopes', 'team_id', 'user_name'],
+
+      properties: {
+        id: { type: 'string', minLength: 1, maxLength: 9 },
+        access_token: { type: 'string', minLength: 1, maxLength: 51 },
+        scopes: { type: 'string', minLength: 1, maxLength: 500 },
+        team_id: { type: 'string', minLength: 1, maxLength: 9 },
+        user_name: { type: 'string', minLength: 1, maxLength: 36 },
+      },
+    };
+  }
+}
+
+class BotkitTeam extends Model {
+  static get tableName () {
+    return 'botkit_team';
+  }
+
+  static get jsonSchema () {
+    return {
+      type: 'object',
+      required: ['createdby', 'url', 'name', 'token', 'bot'],
+
+      properties: {
+        id: { type: 'string', minLength: 1, maxLength: 9 },
+        createdBy: { type: 'string', minLength: 1, maxLength: 9 },
+        url: { type: 'string', minLength: 1, maxLength: 100 },
+        name: { type: 'string', minLength: 1, maxLength: 100 },
+        token: { type: 'string', minLength: 1, maxLength: 51 },
+        bot: { type: 'string', minLength: 1, maxLength: 500 },
+      },
+    };
+  }
+}
+
+
+class BotkitChannel extends Model {
+  static get tableName () {
+    return 'botkit_channel';
+  }
+
+  static get jsonSchema () {
+    return {
+      type: 'object',
+      required: ['json'],
+
+      properties: {
+        id: { type: 'string', minLength: 1, maxLength: 9 },
+        json: { type: 'text' },
+      },
+    };
+  }
+}
+
+module.exports = { Person, Skill, Point, Message, BotkitUser, BotkitTeam, BotkitChannel };
