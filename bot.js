@@ -1,8 +1,11 @@
 const dotenv = require('dotenv');
 const botkit = require('botkit');
+const botkitStoragePostgres = require('botkit-storage-pg');
+const { transaction } = require('objection');
 const server = require('./server');
 const userRegistration = require('./components/userRegistration');
 const onBoarding = require('./components/onBoarding');
+const { BotkitTeam } = require('./models/schema');
 
 dotenv.load(); // Doesn't override already set environment variables
 
@@ -23,11 +26,29 @@ const botOptions = {
   scopes: ['commands', 'bot'],
 };
 
-if (process.env.DB_URL) {
-  // TODO: config postgres storage.
-  // botOptions.storage = postgresStorage;
+if (
+  process.env.DB_HOST &&
+  process.env.DB_PORT &&
+  process.env.DB_NAME &&
+  process.env.DB_USER &&
+  process.env.DB_PASSWORD
+) {
+  transaction(BotkitTeam.knex(), async trx => {
+    // `botkit-storage-pg` try to insert the same team record when the app is being reinstalled,
+    // so need to clear BotkitTeam table before install the app.
+    await BotkitTeam.query(trx).delete();
+
+    // Set up custom Postgres storage system to store workspaces, channels and users data.
+    botOptions.storage = botkitStoragePostgres({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    });
+  });
 } else {
-  // Store user data in a simple JSON format.
+  // Store workspaces, channels and users data in a simple JSON format.
   botOptions.json_file_store = '.db_bot/';
 }
 
