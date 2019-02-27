@@ -56,9 +56,11 @@ const leaderboardHandler = async (bot, req) => {
 };
 
 const getMessageFromRes = (res, learn) => {
-  if (res.length < 1) return '';
+  if (res.length < 1) return 'Sorry, no points have been recorded yet.';
 
-  const uniqueSortedPoints = [...new Set(res.map(row => row.count))];
+  const uniqueSortedPoints = [...new Set(res.map(row => row.count))].sort(
+    (a, b) => b - a
+  );
 
   const firstPlace = res.filter(row => row.count === uniqueSortedPoints[0]);
   const secondPlace =
@@ -72,19 +74,21 @@ const getMessageFromRes = (res, learn) => {
     learn ? 'learners' : 'teachers'
   } this week*:
 
-  *${firstPlace[0].username}* ${learn ? 'learned' : 'taught'} *${
-  uniqueSortedPoints[0]
-}* ${uniqueSortedPoints[0] === '1' ? 'thing' : 'things'}`;
+  *${firstPlace.map(obj => obj.username).join(', ')}* ${
+  learn ? 'learned' : 'taught'
+} *${uniqueSortedPoints[0]}* ${
+  uniqueSortedPoints[0] === '1' ? 'thing' : 'things'
+}`;
 
   if (secondPlace) {
-    message += `*${secondPlace.map(obj => obj.username).join(',')}* ${
+    message += `, *${secondPlace.map(obj => obj.username).join(', ')}* ${
       learn ? 'learned' : 'taught'
     } *${uniqueSortedPoints[1]}* ${
       uniqueSortedPoints[1] === '1' ? 'thing' : 'things'
     }`;
   }
   if (thirdPlace) {
-    message += `*${thirdPlace.map(obj => obj.username).join(',')}* ${
+    message += `, *${thirdPlace.map(obj => obj.username).join(', ')}* ${
       learn ? 'learned' : 'taught'
     } *${uniqueSortedPoints[2]}* ${
       uniqueSortedPoints[2] === '1' ? 'thing' : 'things'
