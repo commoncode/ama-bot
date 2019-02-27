@@ -9,12 +9,28 @@ const {
 } = require('../lib/messageService');
 const { LEARNING_KEY, MAIN_HELP_TEXT } = require('../static');
 
+const hears = slackController => {
+  slackController.hears(
+    LEARNING_KEY,
+    ['ambient', 'direct_mention', 'mention'],
+    learningHandler
+  );
+  slackController.hears('', ['direct_mention', 'mention'], helpHandler);
+};
+
 const learningHandler = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
   const messageContent = message.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
   const teachers = extractMentionedPeople(messageContent);
+  const teacherNames = [];
+  for (const teacherId of teachers) {
+    const { user: teacherInfoSlack } = await asyncBot.api.users.info({
+      user: teacherId,
+    });
+    teacherNames.push({ id: teacherId, teacherName: teacherInfoSlack.name });
+  }
 
   const learnerSlackId = message.user;
   const { user: learnerInfoSlack } = await asyncBot.api.users.info({
@@ -37,14 +53,13 @@ const learningHandler = async (bot, message) => {
         );
 
         const teachersRecords = [];
-        for (const teacher of teachers) {
-          const { user: teacherInfoSlack } = await asyncBot.api.users.info({
-            user: teacher,
-          });
-          const { name: teacherName } = teacherInfoSlack;
-
+        for (const teacher of teacherNames) {
           teachersRecords.push(
-            await personService.findOrInsertPerson(teacher, teacherName, trx)
+            await personService.findOrInsertPerson(
+              teacher.id,
+              teacher.teacherName,
+              trx
+            )
           );
         }
 
@@ -81,7 +96,12 @@ const learningHandler = async (bot, message) => {
       });
     } catch (err) {
       console.error(err);
+      return;
     }
+    bot.reply(
+      message,
+      constructConfirmationMessage(learnerName, teacherNames, skills)
+    );
   }
 };
 
@@ -89,13 +109,12 @@ const helpHandler = (bot, message) => {
   bot.whisper(message, MAIN_HELP_TEXT);
 };
 
-const hears = slackController => {
-  slackController.hears(
-    LEARNING_KEY,
-    ['ambient', 'direct_mention', 'mention'],
-    learningHandler
-  );
-  slackController.hears('', ['direct_mention', 'mention'], helpHandler);
+const constructConfirmationMessage = (learner, teacherNames, skills) => {
+  return `*${learner}* earned 1 learning point and *${teacherNames
+    .map(x => x.teacherName)
+    .join(', ')}* ${
+    teacherNames.length > 1 ? 'each ' : ''
+  }earned 1 teaching point for _${skills.join(', ')}_`;
 };
 
 module.exports = hears;
