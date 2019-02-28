@@ -1,3 +1,6 @@
+const { transaction } = require('objection');
+const { BotkitTeam } = require('../models/schema');
+
 const userRegistration = (slackController) => {
 
   /* Handle event caused by a user logging in with oauth */
@@ -30,7 +33,7 @@ const userRegistration = (slackController) => {
 
       const testBot = slackController.spawn(team.bot);
 
-      testBot.api.auth.test({}, (err, botAuth) => {
+      testBot.api.auth.test({}, async (err, botAuth) => {
         if (err) {
           console.error('Error: could not authenticate bot user', err);
         } else {
@@ -43,6 +46,16 @@ const userRegistration = (slackController) => {
           testBot.identity.name = botAuth.user;
 
           testBot.team_info = team;
+
+          if (!isNewTeam) {
+            await transaction(BotkitTeam.knex(), async trx => {
+              // `botkit-storage-pg` try to insert the same team record when the app is being reinstalled,
+              // so need to remove existing record before save.
+              await BotkitTeam.query(trx)
+                .delete()
+                .where({ id: payload.identity.team_id });
+            });
+          }
 
           slackController.storage.teams.save(team, (err) => {
             if (err) {
