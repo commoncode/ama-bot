@@ -19,26 +19,15 @@ const hears = slackController => {
 };
 
 const learningHandler = async (bot, message) => {
-  const asyncBot = genAsyncBot(bot);
+  // learnerObject contains slackId and name
+  // teacherObjects is array of objects, each containing slackId and name
+  const {
+    learnerObject,
+    skills,
+    teacherObjects,
+  } = await extractMessageContents(bot, message);
 
-  const messageContent = message.text.replace(LEARNING_KEY, ' ');
-  const skills = extractSkills(messageContent);
-  const teachers = extractMentionedPeople(messageContent);
-  const teacherNames = [];
-  for (const teacherId of teachers) {
-    const { user: teacherInfoSlack } = await asyncBot.api.users.info({
-      user: teacherId,
-    });
-    teacherNames.push({ id: teacherId, teacherName: teacherInfoSlack.name });
-  }
-
-  const learnerSlackId = message.user;
-  const { user: learnerInfoSlack } = await asyncBot.api.users.info({
-    user: learnerSlackId,
-  });
-  const { name: learnerName } = learnerInfoSlack;
-
-  if (skills.length && learnerName && teachers.length) {
+  if (skills.length && learnerObject) {
     try {
       await transaction(Point.knex(), async trx => {
         const messageRecord = await Message.query(trx).insertAndFetch({
@@ -47,20 +36,23 @@ const learningHandler = async (bot, message) => {
         });
 
         const learnerRecord = await personService.findOrInsertPerson(
-          learnerSlackId,
-          learnerName,
+          learnerObject.id,
+          learnerObject.name,
           trx
         );
 
+        // messages without teachers named are still valid
         const teachersRecords = [];
-        for (const teacher of teacherNames) {
-          teachersRecords.push(
-            await personService.findOrInsertPerson(
-              teacher.id,
-              teacher.teacherName,
-              trx
-            )
-          );
+        if (teacherObjects.length) {
+          for (const teacher of teacherObjects) {
+            teachersRecords.push(
+              await personService.findOrInsertPerson(
+                teacher.id,
+                teacher.teacherName,
+                trx
+              )
+            );
+          }
         }
 
         for (const skill of skills) {
@@ -84,7 +76,7 @@ const learningHandler = async (bot, message) => {
             person_id: learnerRecord.id,
           });
 
-          // Insert teaching points.
+          // Insert teaching points, will not insert anything if teachersRecords is empty
           for (const teacherRecord of teachersRecords) {
             await Point.query(trx).insert({
               ...basePoint,
@@ -100,7 +92,7 @@ const learningHandler = async (bot, message) => {
     }
     bot.reply(
       message,
-      constructConfirmationMessage(learnerName, teacherNames, skills)
+      constructConfirmationMessage(learnerObject, teacherObjects, skills)
     );
   }
 };
@@ -109,12 +101,50 @@ const helpHandler = (bot, message) => {
   bot.whisper(message, MAIN_HELP_TEXT);
 };
 
-const constructConfirmationMessage = (learner, teacherNames, skills) => {
-  return `*${learner}* earned 1 learning point and *${teacherNames
-    .map(x => x.teacherName)
-    .join(', ')}* ${
-    teacherNames.length > 1 ? 'each ' : ''
-  }earned 1 teaching point for _${skills.join(', ')}_`;
+const constructConfirmationMessage = (
+  learnerObject,
+  teacherObjects,
+  skills
+) => {
+  const skillStr = `for _${skills.join(', ')}_`;
+  let teacherStr = '';
+  if (teacherObjects.length) {
+    teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}* ${
+      teacherObjects.length > 1 ? 'each ' : ''
+    }earned 1 teaching point `;
+  }
+
+  return `*${
+    learnerObject.name
+  }* earned 1 learning point ${teacherStr}${skillStr}`;
+};
+
+const extractMessageContents = async (bot, message) => {
+  const asyncBot = genAsyncBot(bot);
+
+  const messageContent = message.text.replace(LEARNING_KEY, ' ');
+  const skills = extractSkills(messageContent);
+  const teachers = extractMentionedPeople(messageContent);
+
+  const teacherObjects = [];
+  for (const teacherId of teachers) {
+    const { user: teacherInfoSlack } = await asyncBot.api.users.info({
+      user: teacherId,
+    });
+    teacherObjects.push({ id: teacherId, teacherName: teacherInfoSlack.name });
+  }
+
+  const learnerSlackId = message.user;
+  const { user: learnerInfoSlack } = await asyncBot.api.users.info({
+    user: learnerSlackId,
+  });
+  const { name: learnerName } = learnerInfoSlack;
+
+  return {
+    learnerObject: { id: learnerSlackId, name: learnerName },
+    skills,
+    teacherObjects,
+  };
 };
 
 module.exports = hears;
