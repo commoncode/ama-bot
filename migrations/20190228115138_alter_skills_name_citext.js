@@ -10,7 +10,7 @@ exports.up = function (knex, Promise) {
 
 exports.down = function (knex, Promise) {
   return Promise.all([
-    knex.schema.alterTable('User', table => {
+    knex.schema.alterTable('skills', table => {
       table.string('name').alter();
     }),
   ]);
