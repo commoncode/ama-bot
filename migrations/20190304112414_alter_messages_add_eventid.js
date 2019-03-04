@@ -1,7 +1,7 @@
 exports.up = function (knex, Promise) {
   return Promise.all([
     knex.schema.table('messages', table => {
-      table.string('slack_event_id').notNull();
+      table.string('slack_event_id');
     }),
   ]);
 };
