@@ -1,5 +1,4 @@
 const { transaction } = require('objection');
-const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
@@ -19,6 +18,9 @@ const hears = slackController => {
 };
 
 const learningHandler = async (bot, message) => {
+  // send off an acknowledged reply to prevent multiple events from being fired
+  bot.replyAcknowledge();
+
   // learnerObject contains slackId and name
   // teacherObjects is array of objects, each containing slackId and name
   const {
@@ -32,7 +34,8 @@ const learningHandler = async (bot, message) => {
       await transaction(Point.knex(), async trx => {
         const messageRecord = await Message.query(trx).insertAndFetch({
           text: message.event.text,
-          datetime: moment().format(),
+          datetime: message.event.ts,
+          slack_event_id: message.event_id,
         });
 
         const learnerRecord = await personService.findOrInsertPerson(

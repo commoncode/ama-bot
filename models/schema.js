@@ -138,6 +138,7 @@ class Message extends Model {
         id: { type: 'integer' },
         text: { type: 'string', minLength: 1, maxLength: 255 },
         datetime: { type: 'datetime' },
+        slack_event_id: { type: 'string', minLength: 1, maxLength: 255 },
       },
     };
   }
