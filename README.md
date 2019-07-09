@@ -57,7 +57,7 @@ DB_HOST=xxxx
 DB_PORT=xxxx
 DB_USER=xxxx
 DB_NAME=xxxx
-DA_PASSWORD=xxxx
+DB_PASSWORD=xxxx
 ```
 
 An example file is given in `./example.env`. values for the variables can be found
@@ -69,6 +69,14 @@ your bot, and enable the option for "Always Show My Bot as Online", then click s
 Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under
 "Redirect URLs", add `https://{ngrok-url}/oauth`, then click save.
 
+In the same tab, under the "Scopes" header, select the following permissions, and
+click save:
+
+- chat:write:bot
+- im:history
+- bot
+- commands
+
 Click on the "Interactive Components" tab, under "Request URL",
 add `https://{ngrok-url}/slack/receive`, then click save.
 
@@ -76,7 +84,7 @@ Click on the "Event Subscriptions" tab, and switch on "Enable Events",
 under "Request URL", add `https://{ngrok-url}/slack/receive`. Once finish typing,
 Slack will verify that this endpoint is properly configured, therefore you must have your localhost running and exposed to public internet to make this work, and have npm running as well.
 
-Once verified, click "Add Bot User Event", and use the dropdown to search and select following events:
+Once verified, click "Add Bot User Event", and use the dropdown to search and select following events, then click save:
 
 - `message.channels`
 - `message.groups`
