@@ -155,12 +155,20 @@ This project uses
 The production database is hosted and managed by heroku as an 'addon'. It is currently using Postgres 10.6.
 
 For local development create a database `ama_test`. 
-Add the database url to your `.env` file
+Create a user with the priviledge to write in the database, and then make that user a
+superuser (replace all values between <> with desired username and password):
 
 ```
-DATABASE_URL=postgres://postgres:pgadmin@localhost:5432/ama_test
+CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
+GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
+ALTER USER <username> WITH SUPERUSER;
 ```
-You may need to add a role `postgres` with login to be able to run migrations.  
+
+Add the database url to your `.env` file:
+
+```
+DATABASE_URL=postgres://<username>:<password>@localhost:5432/ama_test
+```
 
 ### Running Migrations
 
