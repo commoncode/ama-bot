@@ -98,6 +98,8 @@ add "/ama" under "Command", and add `https://{ngrok-url}/slack/receive` under "R
 
 Add `help` and `leaderboard` in the usage hint field as optional parameters to be passed in.
 
+Note: the command has to be exactly "/ama", as this is currently a hardcoded value.
+
 ### Add your bot to workspace
 
 This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot,
