@@ -65,20 +65,20 @@ const learningHandler = async (bot, message) => {
 };
 
 const updateMessages = async (trx, message) => {
-  return await Message.query(trx).insertAndFetch({
+  return Message.query(trx).insertAndFetch({
     text: message.event.text,
     datetime: moment.unix(message.event.event_ts).format(),
     slack_event_id: message.event_id,
   });
-}
+};
 
 const updateLearner = async (trx, learnerObject) => {
-  return await personService.findOrInsertPerson(
+  return personService.findOrInsertPerson(
     learnerObject.id,
     learnerObject.name,
     trx
   );
-}
+};
 
 const updateTeachers = async (trx, teacherObjects) => {
   const teachersRecords = [];
@@ -95,7 +95,7 @@ const updateTeachers = async (trx, teacherObjects) => {
   }
 
   return teachersRecords;
-}
+};
 
 const getOrCreateSkill = async (trx, skill) => {
   let created = false;
@@ -108,7 +108,7 @@ const getOrCreateSkill = async (trx, skill) => {
   }
 
   return { skillRecord, created };
-}
+};
 
 const updatePoints = async (trx, messageRecord, skillRecord, learnerRecord, teachersRecords) => {
   const basePoint = {
@@ -131,7 +131,7 @@ const updatePoints = async (trx, messageRecord, skillRecord, learnerRecord, teac
       person_id: teacherRecord.id,
     });
   }
-}
+};
 
 const constructConfirmationMessage = (
   learnerObject,
@@ -141,14 +141,11 @@ const constructConfirmationMessage = (
   const skillStr = `for _${skills.join(', ')}_`;
   let teacherStr = '';
   if (teacherObjects.length) {
-    teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}* ${
-      teacherObjects.length > 1 ? 'each ' : ''
-      }earned 1 teaching point `;
+    teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}*` +
+      ` ${teacherObjects.length > 1 ? 'each ' : ''}earned 1 teaching point `;
   }
 
-  return `*${
-    learnerObject.name
-    }* earned 1 learning point ${teacherStr}${skillStr}`;
+  return `*${learnerObject.name}* earned 1 learning point ${teacherStr}${skillStr}`;
 };
 
 const extractMessageContents = async (bot, message) => {
