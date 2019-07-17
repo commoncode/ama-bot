@@ -19,9 +19,6 @@ const hears = slackController => {
 };
 
 const learningHandler = async (bot, message) => {
-  // send off an acknowledged reply to prevent multiple events from being fired
-  bot.replyAcknowledge();
-
   // learnerObject contains slackId and name
   // teacherObjects is array of objects, each containing slackId and name
   const {
@@ -91,6 +88,11 @@ const learningHandler = async (bot, message) => {
         }
       });
     } catch (err) {
+      if (err.constraint && err.constraint === 'messages_slack_event_id_unique') {
+        console.log(`Duplicate message avoided (slack_event_id: ${message.event_id})`);
+        return;
+      }
+
       console.error(err);
       return;
     }
@@ -115,12 +117,12 @@ const constructConfirmationMessage = (
   if (teacherObjects.length) {
     teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}* ${
       teacherObjects.length > 1 ? 'each ' : ''
-    }earned 1 teaching point `;
+      }earned 1 teaching point `;
   }
 
   return `*${
     learnerObject.name
-  }* earned 1 learning point ${teacherStr}${skillStr}`;
+    }* earned 1 learning point ${teacherStr}${skillStr}`;
 };
 
 const extractMessageContents = async (bot, message) => {
