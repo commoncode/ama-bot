@@ -57,7 +57,7 @@ DB_HOST=xxxx
 DB_PORT=xxxx
 DB_USER=xxxx
 DB_NAME=xxxx
-DA_PASSWORD=xxxx
+DB_PASSWORD=xxxx
 ```
 
 An example file is given in `./example.env`. values for the variables can be found
@@ -69,6 +69,14 @@ your bot, and enable the option for "Always Show My Bot as Online", then click s
 Click on the "OAuth & Permissions" tab in your Slack's app setting page, and under
 "Redirect URLs", add `https://{ngrok-url}/oauth`, then click save.
 
+In the same tab, under the "Scopes" header, select the following permissions, and
+click save:
+
+- chat:write:bot
+- im:history
+- bot
+- commands
+
 Click on the "Interactive Components" tab, under "Request URL",
 add `https://{ngrok-url}/slack/receive`, then click save.
 
@@ -76,7 +84,7 @@ Click on the "Event Subscriptions" tab, and switch on "Enable Events",
 under "Request URL", add `https://{ngrok-url}/slack/receive`. Once finish typing,
 Slack will verify that this endpoint is properly configured, therefore you must have your localhost running and exposed to public internet to make this work, and have npm running as well.
 
-Once verified, click "Add Bot User Event", and use the dropdown to search and select following events:
+Once verified, click "Add Bot User Event", and use the dropdown to search and select following events, then click save:
 
 - `message.channels`
 - `message.groups`
@@ -89,6 +97,8 @@ Click on "Slash Commands" tab, and click on "Create New Command" button,
 add "/ama" under "Command", and add `https://{ngrok-url}/slack/receive` under "Request URL" and save.
 
 Add `help` and `leaderboard` in the usage hint field as optional parameters to be passed in.
+
+Note: the command has to be exactly "/ama", as this is currently a hardcoded value.
 
 ### Add your bot to workspace
 
@@ -147,12 +157,20 @@ This project uses
 The production database is hosted and managed by heroku as an 'addon'. It is currently using Postgres 10.6.
 
 For local development create a database `ama_test`. 
-Add the database url to your `.env` file
+Create a user with the priviledge to write in the database, and then make that user a
+superuser (replace all values between <> with desired username and password):
 
 ```
-DATABASE_URL=postgres://postgres:pgadmin@localhost:5432/ama_test
+CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
+GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
+ALTER USER <username> WITH SUPERUSER;
 ```
-You may need to add a role `postgres` with login to be able to run migrations.  
+
+Add the database url to your `.env` file:
+
+```
+DATABASE_URL=postgres://<username>:<password>@localhost:5432/ama_test
+```
 
 ### Running Migrations
 
