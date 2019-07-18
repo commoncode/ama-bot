@@ -18,10 +18,11 @@ const hears = slackController => {
   slackController.hears('', ['direct_mention', 'mention'], helpHandler);
 };
 
-const learningHandler = async (bot, message) => {
-  // send off an acknowledged reply to prevent multiple events from being fired
-  bot.replyAcknowledge();
+const helpHandler = (bot, message) => {
+  bot.whisper(message, MAIN_HELP_TEXT);
+};
 
+const learningHandler = async (bot, message) => {
   // learnerObject contains slackId and name
   // teacherObjects is array of objects, each containing slackId and name
   const {
@@ -33,64 +34,26 @@ const learningHandler = async (bot, message) => {
   if (skills.length && learnerObject) {
     try {
       await transaction(Point.knex(), async trx => {
-        const messageRecord = await Message.query(trx).insertAndFetch({
-          text: message.event.text,
-          datetime: moment.unix(message.event.event_ts).format(),
-          slack_event_id: message.event_id,
-        });
-
-        const learnerRecord = await personService.findOrInsertPerson(
-          learnerObject.id,
-          learnerObject.name,
-          trx
-        );
+        const messageRecord = await updateMessages(trx, message);
+        const learnerRecord = await updateLearner(trx, learnerObject);
 
         // messages without teachers named are still valid
-        const teachersRecords = [];
-        if (teacherObjects.length) {
-          for (const teacher of teacherObjects) {
-            teachersRecords.push(
-              await personService.findOrInsertPerson(
-                teacher.id,
-                teacher.teacherName,
-                trx
-              )
-            );
-          }
-        }
+        const teachersRecords = await updateTeachers(trx, teacherObjects);
 
         for (const skill of skills) {
-          let skillRecord = await Skill.query(trx).findOne({ name: skill });
-          if (!skillRecord) {
-            skillRecord = await Skill.query(trx).insertAndFetch({
-              name: skill,
-            });
+          const { skillRecord, created } = await getOrCreateSkill(trx, skill);
+          if (created) {
             bot.reply(message, `${skill} was added as a new skill!`);
           }
-
-          const basePoint = {
-            message_id: messageRecord.id,
-            skill_id: skillRecord.id,
-          };
-
-          // Insert learning point.
-          await Point.query(trx).insert({
-            ...basePoint,
-            teach: false,
-            person_id: learnerRecord.id,
-          });
-
-          // Insert teaching points, will not insert anything if teachersRecords is empty
-          for (const teacherRecord of teachersRecords) {
-            await Point.query(trx).insert({
-              ...basePoint,
-              teach: true,
-              person_id: teacherRecord.id,
-            });
-          }
+          await updatePoints(trx, messageRecord, skillRecord, learnerRecord, teachersRecords);
         }
       });
     } catch (err) {
+      if (err.constraint && err.constraint === 'messages_slack_event_id_unique') {
+        console.log(`Duplicate message avoided (slack_event_id: ${message.event_id})`);
+        return;
+      }
+
       console.error(err);
       return;
     }
@@ -101,8 +64,73 @@ const learningHandler = async (bot, message) => {
   }
 };
 
-const helpHandler = (bot, message) => {
-  bot.whisper(message, MAIN_HELP_TEXT);
+const updateMessages = async (trx, message) => {
+  return Message.query(trx).insertAndFetch({
+    text: message.event.text,
+    datetime: moment.unix(message.event.event_ts).format(),
+    slack_event_id: message.event_id,
+  });
+};
+
+const updateLearner = async (trx, learnerObject) => {
+  return personService.findOrInsertPerson(
+    learnerObject.id,
+    learnerObject.name,
+    trx
+  );
+};
+
+const updateTeachers = async (trx, teacherObjects) => {
+  const teachersRecords = [];
+  if (teacherObjects.length) {
+    for (const teacher of teacherObjects) {
+      teachersRecords.push(
+        await personService.findOrInsertPerson(
+          teacher.id,
+          teacher.teacherName,
+          trx
+        )
+      );
+    }
+  }
+
+  return teachersRecords;
+};
+
+const getOrCreateSkill = async (trx, skill) => {
+  let created = false;
+  let skillRecord = await Skill.query(trx).findOne({ name: skill });
+  if (!skillRecord) {
+    skillRecord = await Skill.query(trx).insertAndFetch({
+      name: skill,
+    });
+    created = true;
+  }
+
+  return { skillRecord, created };
+};
+
+const updatePoints = async (trx, messageRecord, skillRecord, learnerRecord, teachersRecords) => {
+  const basePoint = {
+    message_id: messageRecord.id,
+    skill_id: skillRecord.id,
+  };
+
+  // Insert learning point.
+  await Point.query(trx).insert({
+    ...basePoint,
+    teach: false,
+    person_id: learnerRecord.id,
+  });
+
+  // Insert teaching points, will not insert anything if teachersRecords is empty
+  for (const teacherRecord of teachersRecords) {
+    await Point.query(trx).insert({
+      ...basePoint,
+      teach: true,
+      person_id: teacherRecord.id,
+    });
+  }
 };
 
 const constructConfirmationMessage = (
@@ -113,14 +141,11 @@ const constructConfirmationMessage = (
   const skillStr = `for _${skills.join(', ')}_`;
   let teacherStr = '';
   if (teacherObjects.length) {
-    teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}* ${
-      teacherObjects.length > 1 ? 'each ' : ''
-    }earned 1 teaching point `;
+    teacherStr = `and *${teacherObjects.map(x => x.teacherName).join(', ')}*` +
+      ` ${teacherObjects.length > 1 ? 'each ' : ''}earned 1 teaching point `;
   }
 
-  return `*${
-    learnerObject.name
-  }* earned 1 learning point ${teacherStr}${skillStr}`;
+  return `*${learnerObject.name}* earned 1 learning point ${teacherStr}${skillStr}`;
 };
 
 const extractMessageContents = async (bot, message) => {
