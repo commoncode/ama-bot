@@ -137,6 +137,8 @@ be triggered to deploy any branch by a contributor at the bottom of the applicat
 The `staging` application also has a postgres database 'addon' which can be accessed by the `dyno` process using the
 environment variable `DATABASE_URL`.
 
+NOTE: As per [CCP-178](https://commoncode.atlassian.net/browse/CCP-178) an error message will be shown when the app has been auhenticated, but this does not stop it from being deployed.
+
 ### Manual Authentication
 
 Currently due to storing the authentication credentials in ephemeral storage each time the app is deployed it needs
