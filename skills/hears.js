@@ -151,7 +151,7 @@ const constructConfirmationMessage = (
 const extractMessageContents = async (bot, message) => {
   const asyncBot = genAsyncBot(bot);
 
-  const messageContent = message.text.replace(LEARNING_KEY, ' ');
+  const messageContent = message.event.text.replace(LEARNING_KEY, ' ');
   const skills = extractSkills(messageContent);
   const teachers = extractMentionedPeople(messageContent);
 
