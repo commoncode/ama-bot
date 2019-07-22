@@ -1,5 +1,8 @@
 const LEARNING_KEY = ':tanabata_tree:';
 const MAIN_HELP_TEXT = `
+
+BEN TEST
+
 This is the AMA bot!  Use it to share learning and collaboration that has occurred.
 
 To record that you learned something, include the tanabata tree emoji (${LEARNING_KEY})

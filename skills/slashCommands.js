@@ -72,27 +72,27 @@ const getMessageFromRes = (res, learn) => {
 
   let message = `*:tada: Congratulations :tada: to our best ${
     learn ? 'learners' : 'teachers'
-  } this week*:
+    } this week*:
 
   *${firstPlace.map(obj => obj.username).join(', ')}* ${
-  learn ? 'learned' : 'taught'
-} *${uniqueSortedPoints[0]}* ${
-  uniqueSortedPoints[0] === '1' ? 'thing' : 'things'
-}`;
+    learn ? 'learned' : 'taught'
+    } *${uniqueSortedPoints[0]}* ${
+    uniqueSortedPoints[0] === '1' ? 'thing' : 'things'
+    }`;
 
   if (secondPlace) {
     message += `, *${secondPlace.map(obj => obj.username).join(', ')}* ${
       learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[1]}* ${
+      } *${uniqueSortedPoints[1]}* ${
       uniqueSortedPoints[1] === '1' ? 'thing' : 'things'
-    }`;
+      }`;
   }
   if (thirdPlace) {
     message += `, *${thirdPlace.map(obj => obj.username).join(', ')}* ${
       learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[2]}* ${
+      } *${uniqueSortedPoints[2]}* ${
       uniqueSortedPoints[2] === '1' ? 'thing' : 'things'
-    }`;
+      }`;
   }
 
   return message;
