@@ -5,23 +5,23 @@
 Clone this repository using Git:
 
 ```bash
-git clone git@github.com:commoncode/ama-bot.git
+$ git clone git@github.com:commoncode/ama-bot.git
 ```
 
 Install dependencies:
 
 ```bash
-npm install
+$ npm install
 ```
 
 ## Local development
 
 ### Ngrok setup
 
-Install ngrok, you can do that using most os packages managers or through npm:
+To install ngrok, you can use most os packages managers or use `npm`:
 
 ```bash
-npm install ngrok -g
+$ npm install ngrok -g
 ```
 
 _**Recommended:** Sign up for a free plan [here](https://dashboard.ngrok.com/user/signup) so that sessions don't expire every 8 hours. Follow the ngrok documents to add the authtoken to your local environment._
@@ -29,17 +29,19 @@ _**Recommended:** Sign up for a free plan [here](https://dashboard.ngrok.com/use
 Expose local server to public internet:
 
 ```bash
-ngrok http 3000
+$ ngrok http 3000
 ```
 
 If all goes well you should see `Session Status` is `online`, and two `Forwarding` URLs (one http and the other https).
 
+Copy down the HTTPS address given (something similar to `https://9a9e60e1.ngrok.io`).
+
 On Linux systems `npm` can sometimes fail to install `ngrok` properly. If this is the case, either install it through the software package manager, or install it using the following commands:
 
 ```bash
-yarn global add ngrok
-sudo unzip ~/.ngrok/*.zip -d /usr/local/bin/
-rm -r ~/.ngrok
+$ yarn global add ngrok
+$ sudo unzip ~/.ngrok/*.zip -d /usr/local/bin/
+$ rm -r ~/.ngrok
 ```
 
 There is an [open ticket](https://commoncode.atlassian.net/browse/CCP-179) to look into this.
@@ -60,7 +62,7 @@ PORT=3000
 In a new terminal go to the root directory of the project and run:
 
 ```bash
-npm run dev
+$ npm run dev
 ```
 
 This should run normally and show:
@@ -68,14 +70,6 @@ This should run normally and show:
 ```bash
 Bot is listening on port 3000
 ```
-
-In a new terminal, start an instance of ngrok running:
-
-```bash
-ngrok http 3000
-```
-
-Copy down the HTTPS address given (something similar to `https://9a9e60e1.ngrok.io`).
 
 Create a [new app](https://api.slack.com/apps?new_app=1). If unsure of what fields to fill in, copy the [AMA settings](https://api.slack.com/apps/AF5F0BXA4), but replace `https://cc-ama-bot-dev.herokuapp.com` with the address you just copied from `ngrok`.
 
@@ -111,18 +105,18 @@ The production database is hosted and managed by heroku as an 'addon'. It is cur
 
 For local development make sure that Postgres is installed on your machine, then create a database called `ama_test`:
 
-```
-sudo -i -u postgres
-psql
-CREATE DATABASE ama_test;
+```bash
+$ sudo -i -u postgres
+$ psql
+$ CREATE DATABASE ama_test;
 ```
 
 Create a user with the priviledge to write in the database, and then make that user a superuser (replace all values between <> with desired username and password):
 
 ```
-CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
-GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
-ALTER USER <username> WITH SUPERUSER;
+$ CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
+$ GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
+$ ALTER USER <username> WITH SUPERUSER;
 ```
 
 Add the database url to your `.env` file:
@@ -152,7 +146,7 @@ Run `knex migrate:latest` from the terminal to run all migrations that haven't y
 **Note:** If you get an error saying that `knex` is not a recognised command, you may need to run the following before trying the migrate command again:
 
 ```bash
-sudo npm install -g knex
+$ sudo npm install -g knex
 ```
 
 There is an [open ticket](https://commoncode.atlassian.net/browse/CCP-179) to look into this.
