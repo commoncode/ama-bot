@@ -14,14 +14,6 @@ Install dependencies:
 npm install
 ```
 
-Add `.env` file in the project root directory.
-
-Launch the server by typing:
-
-```bash
-npm run dev
-```
-
 ## Local development
 
 ### Ngrok setup
@@ -50,44 +42,128 @@ sudo unzip ~/.ngrok/*.zip -d /usr/local/bin/
 rm -r ~/.ngrok
 ```
 
+There is an [open ticket](https://commoncode.atlassian.net/browse/CCP-179) to look into this.
+
 ### Slack App setup
 
 Get yourself added to the list of collaborators on the AMA bot app. You will need to get one of the existing collaborators to help you with this.
 
 Copy the example.env file and rename it `.env`. Set the following variables:
 
+```bash
 SLACK_CLIENT_ID=xxxx
 SLACK_CLIENT_SECRET=xxxx
 SLACK_CLIENT_SIGNING_SECRET=xxxx
 PORT=3000
+```
 
-In a new terminal go to the root directory of the project and run `npm run dev`. This should run normally and show:
+In a new terminal go to the root directory of the project and run:
+
+```bash
+npm run dev
+```
+
+This should run normally and show:
 
 ```bash
 Bot is listening on port 3000
 ```
 
-In a new terminal, start an instance of ngrok running (`ngrok http 3000`), and copy the HTTPS address given (something similar to `https://9a9e60e1.ngrok.io`).
+In a new terminal, start an instance of ngrok running:
 
-Create a [new app](https://api.slack.com/apps?new_app=1). If unsure of what fields to fill in, copy the AMA settings, but replace `https://cc-ama-bot-dev.herokuapp.com` with the address you just copied from `ngrok`. Work your way through all the tabs on the left, except for `Install App`. Also, in the `OAuth Tokens & Redirect URLs` tab, do not click on `Install App to Workspace`.
+```bash
+ngrok http 3000
+```
 
-NOTE: If you ever restart ngrok, you will need to re-add the new address everywhere in your bot's online settings. This will be the case every time you, for example, restart you laptop.
+Copy down the HTTPS address given (something similar to `https://9a9e60e1.ngrok.io`).
 
-NOTE: the slash command in the `Slash Commands` tab has to be exactly `/ama`, as this is currently a hardcoded value.
+Create a [new app](https://api.slack.com/apps?new_app=1). If unsure of what fields to fill in, copy the [AMA settings](https://api.slack.com/apps/AF5F0BXA4), but replace `https://cc-ama-bot-dev.herokuapp.com` with the address you just copied from `ngrok`.
+
+Work your way through all the tabs on the left under the **Features** tab header, except for `Install App`. Also, in the `OAuth Tokens & Redirect URLs` tab, do not click on `Install App to Workspace`. If still unsure, take a look at one of the [other test bots](https://api.slack.com/apps/AKX14UWDR) (you'll need to be added as a collaborator to get access to this bot).
+
+**Note:** If you ever restart ngrok, you will need to re-add the new address everywhere in your bot's online settings. This will be the case every time you, for example, restart you laptop.
+
+**Note:** the slash command in the `Slash Commands` tab has to be exactly `/ama`, as this is currently a hardcoded value.
 
 In your .env file, fill out the following fields, leaving all others blank for now. `xxxx` value should be replaced with the corresponding info from the `Basic Information` tab of your app's page:
 
+```bash
 SLACK_CLIENT_ID=xxxx
 SLACK_CLIENT_SECRET=xxxx
 SLACK_CLIENT_SIGNING_SECRET=xxxx
+```
+
+Now restart your server (_NOT_ the `ngrok` service). You should again see the output of:
+
+```bash
+Bot is listening on port 3000
+```
+
+## Database
+
+This project uses
+
+- [postgresql](https://www.postgresql.org/docs/10/app-psql.html)
+- [knex.j](https://knexjs.org/) (js SQL query builder)
+- [objection.js](http://vincit.github.io/objection.js/) (ORM)
+
+The production database is hosted and managed by heroku as an 'addon'. It is currently using Postgres 10.6.
+
+For local development make sure that Postgres is installed on your machine, then create a database called `ama_test`:
+
+```
+sudo -i -u postgres
+psql
+CREATE DATABASE ama_test;
+```
+
+Create a user with the priviledge to write in the database, and then make that user a superuser (replace all values between <> with desired username and password):
+
+```
+CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
+GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
+ALTER USER <username> WITH SUPERUSER;
+```
+
+Add the database url to your `.env` file:
+
+```
+DATABASE_URL=postgres://<username>:<password>@localhost:5432/ama_test
+```
+
+### Running Migrations
+
+To create a new migration, run `knex migrate:make create_MYTABLE` from the root of the project. Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions. Note that the migrations are not automatically generated from the schema; you will still need to create them by hand.
+
+To run migrations you'll need to set a number of variables in the `.env` file. These correspond directly to sections of the `DATABASE_URL` variable. Fill in the following variables in your `.env` file, replacing the values in <> with the same values used in the previous section:
+
+```bash
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=<username>
+DB_NAME=ama_test
+DB_PASSWORD=<password>
+```
+
+There is an [open ticket](https://commoncode.atlassian.net/browse/CCP-180) to look into if this can be simplified.
+
+Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run.
+
+**Note:** If you get an error saying that `knex` is not a recognised command, you may need to run the following before trying the migrate command again:
+
+```bash
+sudo npm install -g knex
+```
+
+There is an [open ticket](https://commoncode.atlassian.net/browse/CCP-179) to look into this.
+
+As defined in the Heroku Procfile, all latest migrations should be run before each release. Notably the deploy process on heroku does not run a rollback so for each schema change a new migration needs to be made.
 
 ### Add your bot to workspace
 
-This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, go to `http://{ngrok-url}/login`, and click **Authorize** button, then server will be connected to slack if there is no error message in console, this process authorizes the server and stores workspace information on server.
+This project uses [Botkit](https://botkit.ai/docs/readme-slack.html) to connect server to Slack bot, go to `{ngrok-url}/login` (where `{ngrok-url}` is the URL copied from the `ngrok` server in the `Slack App setup` section of this document), and click the **Authorize** button. This will connect the bot to the Slack channel, although the web page will be left to hang (there is an [open ticket](https://commoncode.atlassian.net/browse/CCP-178) to look into this). However, you _should_ get a couple of Slack messages telling you that your new bot has now joined the Slack channel. This process authorizes the bot server and stores workspace information on the server.
 
-Create a channel for testing your bot, and invite the bot to the channel.
-
-Type `@bot-name hello`, it should reply with a help text on how to use the bot.
+Create a channel for testing your bot (or join an existing channel), and invite the bot to the channel. If you type `@bot-name hello`, it should reply with a help text on how to use the bot.
 
 # Infrastructure
 
@@ -118,46 +194,6 @@ Currently due to storing the authentication credentials in ephemeral storage eac
 https://cc-ama-bot-dev.herokuapp.com/login
 
 This is to be fixed by: [CCP-142](https://commoncode.atlassian.net/browse/CCP-142)
-
-## Database
-
-This project uses
-
-- [postgresql](https://www.postgresql.org/docs/10/app-psql.html)
-- [knex.j](https://knexjs.org/) (js SQL query builder)
-- [objection.js](http://vincit.github.io/objection.js/) (ORM)
-
-The production database is hosted and managed by heroku as an 'addon'. It is currently using Postgres 10.6.
-
-For local development create a database `ama_test`:
-
-```
-sudo -i -u postgres
-psql
-CREATE DATABASE ama_test;
-```
-
-Create a user with the priviledge to write in the database, and then make that user a superuser (replace all values between <> with desired username and password):
-
-```
-CREATE USER <username> WITH ENCRYPTED PASSWORD '<password>';
-GRANT ALL PRIVILEGES ON DATABASE ama_test TO <username>;
-ALTER USER <username> WITH SUPERUSER;
-```
-
-Add the database url to your `.env` file:
-
-```
-DATABASE_URL=postgres://<username>:<password>@localhost:5432/ama_test
-```
-
-### Running Migrations
-
-To create a new migration, run `knex migrate:make create_MYTABLE` from the root of the project. Knex will create a new timestamped js file in the migrations folder where you can complete the `exports.up` functions.
-
-Run `knex migrate:latest` from the terminal to run all migrations that haven't yet been run.
-
-As defined in the Heroku Procfile, all latest migrations should be run before each release. Notably the deploy process on heroku does not run a rollback so for each schema change a new migration needs to be made.
 
 ## CircleCI
 
