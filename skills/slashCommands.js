@@ -62,38 +62,43 @@ const getMessageFromRes = (res, learn) => {
     (a, b) => b - a
   );
 
-  const firstPlace = res.filter(row => row.count === uniqueSortedPoints[0]);
-  const secondPlace =
-    uniqueSortedPoints.length >= 2 &&
-    res.filter(row => row.count === uniqueSortedPoints[1]);
-  const thirdPlace =
-    uniqueSortedPoints.length >= 3 &&
-    res.filter(row => row.count === uniqueSortedPoints[2]);
+  const role = learn ? 'learners' : 'teachers';
+  let message = `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`;
 
-  let message = `*:tada: Congratulations :tada: to our best ${
-    learn ? 'learners' : 'teachers'
-  } this week*:
+  const scores = getScores(res, uniqueSortedPoints);
+  console.log(scores);
+  scores.forEach(score => {
+    console.log(score);
+    message += getIndividualMessage(score, learn);
+  });
 
-  *${firstPlace.map(obj => obj.username).join(', ')}* ${
-  learn ? 'learned' : 'taught'
-} *${uniqueSortedPoints[0]}* ${
-  uniqueSortedPoints[0] === '1' ? 'thing' : 'things'
-}`;
+  return message;
+};
 
-  if (secondPlace) {
-    message += `, *${secondPlace.map(obj => obj.username).join(', ')}* ${
-      learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[1]}* ${
-      uniqueSortedPoints[1] === '1' ? 'thing' : 'things'
-    }`;
+const getScores = (res, uniqueSortedPoints) => {
+  let scores = [];
+  const num_scores = Math.min(3, uniqueSortedPoints.length);
+  for (i = 0; i < num_scores; i++) {
+    const num_points = uniqueSortedPoints[i];
+    const people = res.filter(row => row.count === num_points);
+    const usernames = people.map(obj => obj.username).join(', ');
+    scores.push({ position: i + 1, usernames, num_points });
   }
-  if (thirdPlace) {
-    message += `, *${thirdPlace.map(obj => obj.username).join(', ')}* ${
-      learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[2]}* ${
-      uniqueSortedPoints[2] === '1' ? 'thing' : 'things'
-    }`;
+
+  return scores;
+};
+
+const getIndividualMessage = (score_object, learn) => {
+  const { position, usernames, num_points } = score_object;
+
+  let message = '';
+  if (position > 1) {
+    message += ', ';
   }
+
+  const activity = learn ? 'learned' : 'taught';
+  const things = num_points > 1 ? 'things' : 'thing';
+  message += `*${usernames}* ${activity} *${num_points}* ${things}`;
 
   return message;
 };
