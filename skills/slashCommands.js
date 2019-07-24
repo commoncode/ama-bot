@@ -24,8 +24,8 @@ const slashCommands = slackController => {
 };
 
 const leaderboardHandler = async (bot, req) => {
-  const oneWeekAgo = new Date()
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   // select learning points for the last week
   const learnRes = await Message.query()
@@ -66,9 +66,7 @@ const getMessageFromRes = (res, learn) => {
   let message = `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`;
 
   const scores = getScores(res, uniqueSortedPoints);
-  console.log(scores);
   scores.forEach(score => {
-    console.log(score);
     message += getIndividualMessage(score, learn);
   });
 
@@ -77,19 +75,19 @@ const getMessageFromRes = (res, learn) => {
 
 const getScores = (res, uniqueSortedPoints) => {
   let scores = [];
-  const num_scores = Math.min(3, uniqueSortedPoints.length);
-  for (i = 0; i < num_scores; i++) {
-    const num_points = uniqueSortedPoints[i];
-    const people = res.filter(row => row.count === num_points);
+  const numScores = Math.min(3, uniqueSortedPoints.length);
+  for (let i = 0; i < numScores; i++) {
+    const numPoints = uniqueSortedPoints[i];
+    const people = res.filter(row => row.count === numPoints);
     const usernames = people.map(obj => obj.username).join(', ');
-    scores.push({ position: i + 1, usernames, num_points });
+    scores.push({ position: i + 1, usernames, numPoints });
   }
 
   return scores;
 };
 
-const getIndividualMessage = (score_object, learn) => {
-  const { position, usernames, num_points } = score_object;
+const getIndividualMessage = (scoreObject, learn) => {
+  const { position, usernames, numPoints } = scoreObject;
 
   let message = '';
   if (position > 1) {
@@ -97,8 +95,8 @@ const getIndividualMessage = (score_object, learn) => {
   }
 
   const activity = learn ? 'learned' : 'taught';
-  const things = num_points > 1 ? 'things' : 'thing';
-  message += `*${usernames}* ${activity} *${num_points}* ${things}`;
+  const things = numPoints > 1 ? 'things' : 'thing';
+  message += `*${usernames}* ${activity} *${numPoints}* ${things}`;
 
   return message;
 };
