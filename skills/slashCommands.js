@@ -1,4 +1,3 @@
-const moment = require('moment');
 const { raw } = require('objection');
 const { Message } = require('../models/schema');
 const { MAIN_HELP_TEXT } = require('../static');
@@ -25,13 +24,14 @@ const slashCommands = slackController => {
 };
 
 const leaderboardHandler = async (bot, req) => {
-  const oldestValidDate = moment().subtract(7, 'days');
+  const oneWeekAgo = new Date()
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
   // select learning points for the last week
   const learnRes = await Message.query()
     .select('people.username', raw('COUNT(points.person_id)'))
     .from('messages')
-    .where('messages.datetime', '>=', oldestValidDate.format())
+    .where('messages.datetime', '>=', oneWeekAgo.toISOString())
     .joinRelation('points')
     .join('people', 'points.person_id', 'people.id')
     .where('points.teach', false)
@@ -41,7 +41,7 @@ const leaderboardHandler = async (bot, req) => {
   const teachRes = await Message.query()
     .select('people.username', raw('COUNT(points.person_id)'))
     .from('messages')
-    .where('messages.datetime', '>=', oldestValidDate.format())
+    .where('messages.datetime', '>=', oneWeekAgo.toISOString())
     .joinRelation('points')
     .join('people', 'points.person_id', 'people.id')
     .where('points.teach', true)
