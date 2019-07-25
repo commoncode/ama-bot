@@ -66,10 +66,10 @@ const getMessageFromRes = (res, learn) => {
 
   const role = learn ? 'learners' : 'teachers';
   const scores = getScores(res, uniqueSortedPoints);
-  const message = scores.reduce((accumulator, score) =>
-    accumulator += getIndividualMessage(score, learn),
-    `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`
-  );
+  const message = scores.reduce((accumulator, score) => {
+    accumulator += getIndividualMessage(score, learn);
+    return accumulator;
+  }, `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`);
 
   return message;
 };
@@ -79,9 +79,9 @@ const getScores = (res, uniqueSortedPoints) => {
   const scores = topThreePoints.reduce((accumulator, numPoints) => {
     const people = res.filter(row => row.count === numPoints);
     const usernames = people.map(obj => obj.username).join(', ');
-    accumulator.push({ position: accumulator.length, usernames, numPoints })
+    accumulator.push({ position: accumulator.length, usernames, numPoints });
     return accumulator;
-  }, [])
+  }, []);
 
   return scores;
 };
