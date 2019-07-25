@@ -62,26 +62,26 @@ const getMessageFromRes = (res, learn) => {
     (a, b) => b - a
   );
 
-  const role = learn ? 'learners' : 'teachers';
-  let message = `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`;
+  console.log(res);
 
+  const role = learn ? 'learners' : 'teachers';
   const scores = getScores(res, uniqueSortedPoints);
-  scores.forEach(score => {
-    message += getIndividualMessage(score, learn);
-  });
+  const message = scores.reduce((accumulator, score) =>
+    accumulator += getIndividualMessage(score, learn),
+    `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`
+  );
 
   return message;
 };
 
 const getScores = (res, uniqueSortedPoints) => {
-  let scores = [];
-  const numScores = Math.min(3, uniqueSortedPoints.length);
-  for (let i = 0; i < numScores; i++) {
-    const numPoints = uniqueSortedPoints[i];
+  const topThreePoints = uniqueSortedPoints.slice(0, 3);
+  const scores = topThreePoints.reduce((accumulator, numPoints) => {
     const people = res.filter(row => row.count === numPoints);
     const usernames = people.map(obj => obj.username).join(', ');
-    scores.push({ position: i + 1, usernames, numPoints });
-  }
+    accumulator.push({ position: accumulator.length, usernames, numPoints })
+    return accumulator;
+  }, [])
 
   return scores;
 };
@@ -90,7 +90,7 @@ const getIndividualMessage = (scoreObject, learn) => {
   const { position, usernames, numPoints } = scoreObject;
 
   let message = '';
-  if (position > 1) {
+  if (position > 0) {
     message += ', ';
   }
 
