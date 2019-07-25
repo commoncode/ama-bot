@@ -62,8 +62,6 @@ const getMessageFromRes = (res, learn) => {
     (a, b) => b - a
   );
 
-  console.log(res);
-
   const role = learn ? 'learners' : 'teachers';
   const scores = getScores(res, uniqueSortedPoints);
   const message = scores.reduce((accumulator, score) => {
