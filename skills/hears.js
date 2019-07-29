@@ -1,5 +1,4 @@
 const { transaction } = require('objection');
-const moment = require('moment');
 const { Skill, Message, Point } = require('../models/schema');
 const personService = require('../lib/personService');
 const genAsyncBot = require('../lib/asyncBot');
@@ -65,9 +64,11 @@ const learningHandler = async (bot, message) => {
 };
 
 const updateMessages = async (trx, message) => {
+  // Slack sends UNIX timestamps, hence multiplication by 1000
+  const datetime = new Date(message.event.event_ts * 1000);
   return Message.query(trx).insertAndFetch({
     text: message.event.text,
-    datetime: moment.unix(message.event.event_ts).format(),
+    datetime: datetime.toISOString(),
     slack_event_id: message.event_id,
   });
 };

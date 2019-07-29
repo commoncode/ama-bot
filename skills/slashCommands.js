@@ -1,4 +1,3 @@
-const moment = require('moment');
 const { raw } = require('objection');
 const { Message } = require('../models/schema');
 const { MAIN_HELP_TEXT } = require('../static');
@@ -25,13 +24,14 @@ const slashCommands = slackController => {
 };
 
 const leaderboardHandler = async (bot, req) => {
-  const oldestValidDate = moment().subtract(7, 'days');
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   // select learning points for the last week
   const learnRes = await Message.query()
     .select('people.username', raw('COUNT(points.person_id)'))
     .from('messages')
-    .where('messages.datetime', '>=', oldestValidDate.format())
+    .where('messages.datetime', '>=', oneWeekAgo.toISOString())
     .joinRelation('points')
     .join('people', 'points.person_id', 'people.id')
     .where('points.teach', false)
@@ -41,7 +41,7 @@ const leaderboardHandler = async (bot, req) => {
   const teachRes = await Message.query()
     .select('people.username', raw('COUNT(points.person_id)'))
     .from('messages')
-    .where('messages.datetime', '>=', oldestValidDate.format())
+    .where('messages.datetime', '>=', oneWeekAgo.toISOString())
     .joinRelation('points')
     .join('people', 'points.person_id', 'people.id')
     .where('points.teach', true)
@@ -62,38 +62,39 @@ const getMessageFromRes = (res, learn) => {
     (a, b) => b - a
   );
 
-  const firstPlace = res.filter(row => row.count === uniqueSortedPoints[0]);
-  const secondPlace =
-    uniqueSortedPoints.length >= 2 &&
-    res.filter(row => row.count === uniqueSortedPoints[1]);
-  const thirdPlace =
-    uniqueSortedPoints.length >= 3 &&
-    res.filter(row => row.count === uniqueSortedPoints[2]);
+  const role = learn ? 'learners' : 'teachers';
+  const scores = getScores(res, uniqueSortedPoints);
+  const message = scores.reduce((accumulator, score) => {
+    accumulator += getIndividualMessage(score, learn);
+    return accumulator;
+  }, `*:tada: Congratulations :tada: to our best ${role} this week*:\n\n`);
 
-  let message = `*:tada: Congratulations :tada: to our best ${
-    learn ? 'learners' : 'teachers'
-  } this week*:
+  return message;
+};
 
-  *${firstPlace.map(obj => obj.username).join(', ')}* ${
-  learn ? 'learned' : 'taught'
-} *${uniqueSortedPoints[0]}* ${
-  uniqueSortedPoints[0] === '1' ? 'thing' : 'things'
-}`;
+const getScores = (res, uniqueSortedPoints) => {
+  const topThreePoints = uniqueSortedPoints.slice(0, 3);
+  const scores = topThreePoints.reduce((accumulator, numPoints) => {
+    const people = res.filter(row => row.count === numPoints);
+    const usernames = people.map(obj => obj.username).join(', ');
+    accumulator.push({ position: accumulator.length, usernames, numPoints });
+    return accumulator;
+  }, []);
 
-  if (secondPlace) {
-    message += `, *${secondPlace.map(obj => obj.username).join(', ')}* ${
-      learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[1]}* ${
-      uniqueSortedPoints[1] === '1' ? 'thing' : 'things'
-    }`;
+  return scores;
+};
+
+const getIndividualMessage = (scoreObject, learn) => {
+  const { position, usernames, numPoints } = scoreObject;
+
+  let message = '';
+  if (position > 0) {
+    message += ', ';
   }
-  if (thirdPlace) {
-    message += `, *${thirdPlace.map(obj => obj.username).join(', ')}* ${
-      learn ? 'learned' : 'taught'
-    } *${uniqueSortedPoints[2]}* ${
-      uniqueSortedPoints[2] === '1' ? 'thing' : 'things'
-    }`;
-  }
+
+  const activity = learn ? 'learned' : 'taught';
+  const things = numPoints > 1 ? 'things' : 'thing';
+  message += `*${usernames}* ${activity} *${numPoints}* ${things}`;
 
   return message;
 };
