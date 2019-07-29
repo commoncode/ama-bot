@@ -177,4 +177,4 @@ const extractMessageContents = async (bot, message) => {
   };
 };
 
-module.exports = { hears, helpHandler, learningHandler, extractMessageContents };
+module.exports = { hears, helpHandler, extractMessageContents };
