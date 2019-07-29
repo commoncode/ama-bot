@@ -168,7 +168,7 @@ const extractMessageContents = async (bot, message) => {
   const { user: learnerInfoSlack } = await asyncBot.api.users.info({
     user: learnerSlackId,
   });
-  const learnerObject = { id: learnerSlackId, name: learnerInfoSlack.name }
+  const learnerObject = { id: learnerSlackId, name: learnerInfoSlack.name };
 
   return {
     learnerObject,
