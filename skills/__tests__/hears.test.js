@@ -14,11 +14,7 @@ const TEACHER_2_NAME = 'TEACHER_2_NAME';
 
 const mockBot = new (jest.fn())();
 mockBot.whisper = jest.fn();
-
-// These all get passed to asyncBot in extractMessageContents
-mockBot.api = jest.fn();
-mockBot.api.users = jest.fn();
-mockBot.api.users.info = jest.fn(({ user }) => {
+mockBot.asyncBotReturn = jest.fn(({ user }) => {
   let name;
   if (user === TEST_USER_ID) { name = TEST_USER_NAME; }
   if (user === TEACHER_1_ID) { name = TEACHER_1_NAME; }
