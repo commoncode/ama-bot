@@ -34,7 +34,9 @@ const getMessage = text => ({
 describe('Test the helpHandler', () => {
   test('helpHandler whispers the given message', () => {
     const messageObject = { messageInfo: 'stuff' };
+
     helpHandler(mockBot, messageObject);
+
     expect(mockBot.whisper.mock.calls.length).toBe(1);
     expect(mockBot.whisper.mock.calls[0][0]).toBe(messageObject);
     expect(mockBot.whisper.mock.calls[0][1]).toBe(MAIN_HELP_TEXT);
@@ -42,47 +44,62 @@ describe('Test the helpHandler', () => {
 });
 
 describe('Test extractMessageContent', () => {
-  test('no skill or teacher mentioned', () => {
+  test('no skill or teacher mentioned', async () => {
     const message = getMessage('Message with no teacher and no skill');
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [],
       skills: [],
     });
   });
 
-  test('one skill and no teacher mentioned', () => {
+  test('one skill and no teacher mentioned', async () => {
     const message = getMessage('Message with no teacher and one _skill_');
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [],
       skills: ['skill'],
     });
   });
 
-  test('two skills and no teacher mentioned', () => {
+  test('two skills and no teacher mentioned', async () => {
     const message = getMessage('Message with no teacher and _two_ _skills_');
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [],
       skills: ['two', 'skills'],
     });
   });
 
-  test('no skill and one teacher mentioned', () => {
+  test('no skill and one teacher mentioned', async () => {
     const message = getMessage(`Message with no skill and <@${TEACHER_1_ID}>`);
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [{ id: TEACHER_1_ID, teacherName: TEACHER_1_NAME }],
       skills: [],
     });
   });
 
-  test('no skill and two teachers mentioned', () => {
+  test('no skill and two teachers mentioned', async () => {
     const message = getMessage(
       `Message with no skill and <@${TEACHER_1_ID}> and <@${TEACHER_2_ID}>`
     );
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [
         { id: TEACHER_1_ID, teacherName: TEACHER_1_NAME },
@@ -92,11 +109,14 @@ describe('Test extractMessageContent', () => {
     });
   });
 
-  test('two skills and two teachers mentioned', () => {
+  test('two skills and two teachers mentioned', async () => {
     const message = getMessage(
       `Message with _two_ _skills_ and <@${TEACHER_1_ID}> and <@${TEACHER_2_ID}>`
     );
-    return expect(extractMessageContents(mockBot, message)).resolves.toMatchObject({
+
+    const result = await extractMessageContents(mockBot, message);
+
+    expect(result).toMatchObject({
       learnerObject: LEARNER_OBJECT,
       teacherObjects: [
         { id: TEACHER_1_ID, teacherName: TEACHER_1_NAME },
