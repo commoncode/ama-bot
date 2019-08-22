@@ -56,5 +56,6 @@ userRegistration(slackController);
 onBoarding(slackController);
 
 // Load in skills.
-require('./skills/hears')(slackController);
+const { hears } = require('./skills/hears');
+hears(slackController);
 require('./skills/slashCommands')(slackController);
