@@ -26,8 +26,8 @@ const learningHandler = async (bot, message) => {
   // teacherObjects is array of objects, each containing slackId and name
   const {
     learnerObject,
-    skills,
     teacherObjects,
+    skills,
   } = await extractMessageContents(bot, message);
 
   if (skills.length && learnerObject) {
@@ -168,13 +168,13 @@ const extractMessageContents = async (bot, message) => {
   const { user: learnerInfoSlack } = await asyncBot.api.users.info({
     user: learnerSlackId,
   });
-  const { name: learnerName } = learnerInfoSlack;
+  const learnerObject = { id: learnerSlackId, name: learnerInfoSlack.name };
 
   return {
-    learnerObject: { id: learnerSlackId, name: learnerName },
-    skills,
+    learnerObject,
     teacherObjects,
+    skills,
   };
 };
 
-module.exports = hears;
+module.exports = { hears, helpHandler, extractMessageContents };
