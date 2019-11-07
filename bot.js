@@ -1,9 +1,10 @@
 const dotenv = require('dotenv');
-const botkit = require('botkit');
 const botkitStoragePostgres = require('botkit-storage-pg');
 const server = require('./server');
 const userRegistration = require('./components/userRegistration');
 const onBoarding = require('./components/onBoarding');
+const { Botkit } = require('botkit');
+const { SlackAdapter } = require('botbuilder-adapter-slack');
 
 dotenv.load(); // Doesn't override already set environment variables
 
@@ -11,11 +12,17 @@ if (
   !process.env.SLACK_CLIENT_ID ||
   !process.env.SLACK_CLIENT_SECRET ||
   !process.env.SLACK_CLIENT_SIGNING_SECRET ||
+  !process.env.SLACK_TOKEN ||
   !process.env.PORT
 ) {
   console.error('Empty or unset Environment Variables');
   process.exit(1);
 }
+
+const adapter = new SlackAdapter({
+  clientSigningSecret: process.env.SLACK_CLIENT_SIGNING_SECRET,
+  botToken: process.env.SLACK_TOKEN,
+});
 
 const botOptions = {
   clientId: process.env.SLACK_CLIENT_ID,
@@ -45,9 +52,7 @@ if (
 }
 
 // Create the Botkit controller, which controls all instances of the bot.
-const slackController = botkit.slackbot(botOptions);
-
-slackController.startTicking();
+const slackController = new Botkit({ adapter });
 
 // Set up express server.
 server(slackController);
