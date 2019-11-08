@@ -1,9 +1,14 @@
 const dotenv = require('dotenv');
-const botkit = require('botkit');
-const botkitStoragePostgres = require('botkit-storage-pg');
-const server = require('./server');
-const userRegistration = require('./components/userRegistration');
-const onBoarding = require('./components/onBoarding');
+const { Botkit } = require('botkit');
+const { SlackAdapter } = require('botbuilder-adapter-slack');
+const { MemoryStorage } = require('botbuilder');
+
+const storage = new MemoryStorage();
+
+// const botkitStoragePostgres = require('botkit-storage-pg');
+// const server = require('./server');
+// const userRegistration = require('./components/userRegistration');
+// const onBoarding = require('./components/onBoarding');
 
 dotenv.load(); // Doesn't override already set environment variables
 
@@ -17,45 +22,75 @@ if (
   process.exit(1);
 }
 
-const botOptions = {
-  clientId: process.env.SLACK_CLIENT_ID,
-  clientSecret: process.env.SLACK_CLIENT_SECRET,
+const slackOptions = {
   clientSigningSecret: process.env.SLACK_CLIENT_SIGNING_SECRET,
-  scopes: ['commands', 'bot'],
+  botToken: process.env.BOT_TOKEN,
+  clientId: process.env.SLACK_CLIENT_ID, // oauth client id
+  clientSecret: process.env.SLACK_CLIENT_SECRET, // oauth client secret
+  scopes: ['bot'], // oauth scopes requested
+  redirectUri: process.env.REDIRECT_URI, // url to redirect post login defaults to `https://<mydomain>/install/auth`
+  getTokenForTeam: async (teamId) => {
+    const team = await storage.read([teamId]);
+    if (team && team.bot_access_token) {
+      return team.bot_access_token;
+    } else {
+      console.error('Team not found in tokenCache: ', teamId);
+    }
+  },
+  getBotUserByTeam: async (teamId) => {
+    const team = await storage.read([teamId]);
+    if (team && team.bot_access_token) {
+      return team.bot_access_token;
+    } else {
+      console.error('Team not found in tokenCache: ', teamId);
+    }
+  },
 };
 
-if (
-  process.env.DB_HOST &&
-  process.env.DB_PORT &&
-  process.env.DB_NAME &&
-  process.env.DB_USER &&
-  process.env.DB_PASSWORD
-) {
-  // Set up custom Postgres storage system to store workspaces, channels and users data.
-  botOptions.storage = botkitStoragePostgres({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
-} else {
-  // Store workspaces, channels and users data in a simple JSON format.
-  botOptions.json_file_store = '.db_bot/';
-}
+// Create Slack adapter for multi-team mode
+const adapter = new SlackAdapter(slackOptions);
 
 // Create the Botkit controller, which controls all instances of the bot.
-const slackController = botkit.slackbot(botOptions);
+const botController = new Botkit({ adapter, storage });
 
-slackController.startTicking();
+botController.webserver.get('/install', (req, res) => {
+  console.log('I AM HERE');
+  res.redirect(adapter.getInstallLink());
+});
 
-// Set up express server.
-server(slackController);
+botController.webserver.get('/install/auth', async (req, res) => {
+  try {
+    const results = await botController.adapter.validateOauthCode(
+      req.query.code
+    );
+    // store these values in a way they'll be retrievable with getBotUserByTeam and getTokenForTeam
+    console.log('RESULTS:', results);
 
-userRegistration(slackController);
-onBoarding(slackController);
+    storage.write({
+      [results.team_id]: {
+        bot_access_token: results.bot.bot_access_token,
+        bot_user_id: results.bot.bot_user_id,
+      },
+    });
+    res.send('Success! Bot installed.');
+  } catch (err) {
+    console.error('OAUTH ERROR:', err);
+    res.status(401);
+    res.send(err.message);
+  }
+});
 
-// Load in skills.
-const { hears } = require('./skills/hears');
-hears(slackController);
-require('./skills/slashCommands')(slackController);
+botController.hears('hello', 'message', async (bot, message) => {
+  console.log('MESSAGE', message);
+});
+
+
+
+
+// userRegistration(botController);
+// onBoarding(botController);
+
+// // Load in skills.
+// const { hears } = require('./skills/hears');
+// hears(botController);
+// require('./skills/slashCommands')(botController);
