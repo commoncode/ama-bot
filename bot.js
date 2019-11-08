@@ -16,6 +16,7 @@ if (
   !process.env.SLACK_CLIENT_ID ||
   !process.env.SLACK_CLIENT_SECRET ||
   !process.env.SLACK_CLIENT_SIGNING_SECRET ||
+  !process.env.SLACK_TOKEN ||
   !process.env.PORT
 ) {
   console.error('Empty or unset Environment Variables');
